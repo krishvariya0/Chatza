@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* ================= THEME FLASH PREVENTION ================= */
+:root {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
 /* ================= BASE RESET ================= */
 @layer base {
   html {
