@@ -9,18 +9,7 @@ interface ThemeLogoProps {
 }
 
 export function ThemeLogo({ className }: ThemeLogoProps) {
-    const { theme, mounted } = useTheme();
-
-    // 🚫 Prevent hydration mismatch
-    if (!mounted) {
-        return (
-            <img
-                src={chatzaLightLogo.src} // SAME on server + first client render
-                alt="Chatza logo"
-                className={className}
-            />
-        );
-    }
+    const { theme } = useTheme();
 
     return (
         <img

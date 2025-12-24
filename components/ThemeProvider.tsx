@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useLayoutEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -13,21 +13,20 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
-    const [theme, setTheme] = useState<Theme>('light');
+    // ✅ Lazy init — NO setState in effect
+    const [theme, setTheme] = useState<Theme>(() => {
+        if (typeof window === 'undefined') return 'light';
 
-    // ✅ useLayoutEffect runs before paint (NO lint error)
-    useLayoutEffect(() => {
         const stored = localStorage.getItem('theme') as Theme | null;
-        const systemPrefersDark =
-            window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (stored === 'light' || stored === 'dark') return stored;
 
-        const resolvedTheme = stored ?? (systemPrefersDark ? 'dark' : 'light');
+        return window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+    });
 
-        setTheme(resolvedTheme);
-        document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
-    }, []);
-
-    useLayoutEffect(() => {
+    // ✅ Side-effects ONLY (allowed)
+    useEffect(() => {
         document.documentElement.classList.toggle('dark', theme === 'dark');
         localStorage.setItem('theme', theme);
     }, [theme]);
