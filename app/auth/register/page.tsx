@@ -47,7 +47,7 @@ export default function RegisterPage() {
 
             showToast.success("Account created successfully 🎉");
             router.push("/auth/login");
-        } catch (error) {
+        } catch {
             showToast.error("Server error");
         } finally {
             setLoading(false);

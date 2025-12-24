@@ -1,4 +1,5 @@
 'use client';
+import NextImage from "next/image";
 import Link from "next/link";
 
 import appPreviewImg from "@/assets/images/landig-page-mobail.png";
@@ -61,8 +62,8 @@ export default function Home() {
         {/* Right – Phone Mockup */}
         <div className="relative flex justify-center">
           <div className="rounded-3xl p-6 sm:p-10 shadow-2xl transition-colors" style={{ background: 'linear-gradient(to bottom right, #f6c6a8, #f3bfa5)' }}>
-            <img
-              src={appPreviewImg.src}
+            <NextImage
+              src={appPreviewImg}
               alt="App Preview"
               className="rounded-2xl 
                          w-[220px] sm:w-[280px] md:w-[340px] lg:w-[420px]"
@@ -88,9 +89,12 @@ export default function Home() {
 
         <div className="flex justify-center mt-8 sm:mt-10 -space-x-4">
           {[1, 2, 3, 4].map(i => (
-            <img
+            <NextImage
               key={i}
               src={`https://i.pravatar.cc/64?img=${i}`}
+              alt={`User avatar ${i}`}
+              width={56}
+              height={56}
               className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 transition-colors"
               style={{ borderColor: 'var(--section-bg)' }}
             />
