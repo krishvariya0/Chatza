@@ -1,4 +1,5 @@
 'use client';
+import Link from "next/link";
 
 import appPreviewImg from "@/assets/images/landig-page-mobail.png";
 import { ThemeLogo } from "@/components/layout/ThemeLogo";
@@ -15,7 +16,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
 
           <ThemeLogo
-            className="h-20 sm:h-25 md:h-30 lg:h-35 xl:h-45 w-auto bg-none   "
+            className="h-15 sm:h-25 md:h-30 lg:h-20 xl:h-30 w-auto bg-none   "
           />
 
 
@@ -24,9 +25,9 @@ export default function Home() {
             <button className="hidden sm:block text-sm sm:text-base font-medium transition-colors" style={{ color: 'var(--text-muted)' }}>
               Login
             </button>
-            <button className="bg-red-500 text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
+            <Link href="auth/register" className="bg-[var(--btn-bg)] text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
               Get Started
-            </button>
+            </Link>
           </div>
         </div>
       </header>
