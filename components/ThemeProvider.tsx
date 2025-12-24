@@ -7,38 +7,46 @@ type Theme = 'light' | 'dark';
 interface ThemeContextType {
     theme: Theme;
     toggleTheme: () => void;
+    mounted: boolean; // ✅ ADD THIS
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<Theme>('light');
 
-    // 🔹 Init theme (runs once)
-    useEffect(() => {
+    // ✅ Mounted flag (CRITICAL for hydration)
+    const [mounted, setMounted] = useState(false);
+
+    // ✅ Lazy initialization (NO setState in useEffect)
+    const [theme, setTheme] = useState<Theme>(() => {
+        if (typeof window === 'undefined') return 'light';
+
         const stored = localStorage.getItem('theme') as Theme | null;
-
         const systemPrefersDark =
             window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        const initialTheme: Theme =
-            stored ?? (systemPrefersDark ? 'dark' : 'light');
+        return stored ?? (systemPrefersDark ? 'dark' : 'light');
+    });
 
-        setTheme(initialTheme);
+    // ✅ Mark mounted AFTER hydration
+    useEffect(() => {
+        setMounted(true);
     }, []);
 
-    // 🔹 Apply theme (ONLY place where DOM is touched)
+    // ✅ Apply theme only after mounted
     useEffect(() => {
+        if (!mounted) return;
+
         document.documentElement.classList.toggle('dark', theme === 'dark');
         localStorage.setItem('theme', theme);
-    }, [theme]);
+    }, [theme, mounted]);
 
     const toggleTheme = () => {
         setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
     };
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
             {children}
         </ThemeContext.Provider>
     );
