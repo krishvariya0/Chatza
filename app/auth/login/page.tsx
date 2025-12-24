@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 type LoginFormData = {
-    email: string;
+    identifier: string; // email OR username
     password: string;
 };
 
@@ -30,7 +30,7 @@ export default function LoginPage() {
             const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                body: JSON.stringify(data), // { identifier, password }
             });
 
             const result = await res.json();
@@ -69,15 +69,12 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form */}
-                <form
-                    onSubmit={handleSubmit(onSubmit, onError)}
-                    className="space-y-5"
-                >
+                <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-5">
 
-                    {/* Email */}
+                    {/* Email or Username */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
-                            Email Address
+                            Email or Username
                         </label>
                         <div className="relative">
                             <Mail
@@ -85,21 +82,21 @@ export default function LoginPage() {
                                 size={18}
                             />
                             <input
-                                {...register("email", {
-                                    required: "Email is required",
-                                    pattern: {
-                                        value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                                        message: "Enter a valid email address",
+                                {...register("identifier", {
+                                    required: "Email or username is required",
+                                    minLength: {
+                                        value: 3,
+                                        message: "Must be at least 3 characters",
                                     },
                                 })}
-                                placeholder="name@example.com"
+                                placeholder="email or username"
                                 className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.email ? "border-red-500" : "border-[var(--border-color)]"}`}
+                ${errors.identifier ? "border-red-500" : "border-[var(--border-color)]"}`}
                             />
                         </div>
-                        {errors.email && (
+                        {errors.identifier && (
                             <p className="text-[11px] text-red-500 ml-1">
-                                {errors.email.message}
+                                {errors.identifier.message}
                             </p>
                         )}
                     </div>
@@ -140,16 +137,6 @@ export default function LoginPage() {
                                 {errors.password.message}
                             </p>
                         )}
-                    </div>
-
-                    {/* Forgot password */}
-                    <div className="text-right">
-                        <button
-                            type="button"
-                            className="text-xs font-medium text-[var(--btn-text)] hover:underline"
-                        >
-                            Forgot password?
-                        </button>
                     </div>
 
                     {/* Submit */}

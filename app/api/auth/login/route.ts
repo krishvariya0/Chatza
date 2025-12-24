@@ -5,9 +5,9 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
+    const { identifier, password } = await req.json();
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
         { success: false, message: "All fields are required" },
         { status: 400 }
@@ -16,11 +16,13 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { username: identifier }],
+    });
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password" },
+        { success: false, message: "Invalid credentials" },
         { status: 401 }
       );
     }
@@ -29,7 +31,7 @@ export async function POST(req: Request) {
 
     if (!isMatch) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password" },
+        { success: false, message: "Invalid credentials" },
         { status: 401 }
       );
     }
