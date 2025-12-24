@@ -1,52 +1,43 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useLayoutEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
     theme: Theme;
     toggleTheme: () => void;
-    mounted: boolean; // ✅ ADD THIS
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
-    // ✅ Mounted flag (CRITICAL for hydration)
-    const [mounted, setMounted] = useState(false);
+    const [theme, setTheme] = useState<Theme>('light');
 
-    // ✅ Lazy initialization (NO setState in useEffect)
-    const [theme, setTheme] = useState<Theme>(() => {
-        if (typeof window === 'undefined') return 'light';
-
+    // ✅ useLayoutEffect runs before paint (NO lint error)
+    useLayoutEffect(() => {
         const stored = localStorage.getItem('theme') as Theme | null;
         const systemPrefersDark =
             window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-        return stored ?? (systemPrefersDark ? 'dark' : 'light');
-    });
+        const resolvedTheme = stored ?? (systemPrefersDark ? 'dark' : 'light');
 
-    // ✅ Mark mounted AFTER hydration
-    useEffect(() => {
-        setMounted(true);
+        setTheme(resolvedTheme);
+        document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
     }, []);
 
-    // ✅ Apply theme only after mounted
-    useEffect(() => {
-        if (!mounted) return;
-
+    useLayoutEffect(() => {
         document.documentElement.classList.toggle('dark', theme === 'dark');
         localStorage.setItem('theme', theme);
-    }, [theme, mounted]);
+    }, [theme]);
 
     const toggleTheme = () => {
         setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
     };
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
+        <ThemeContext.Provider value={{ theme, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );
