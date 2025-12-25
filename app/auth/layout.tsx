@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 export default function AuthLayout({
@@ -14,19 +15,16 @@ export default function AuthLayout({
 
                 {/* Bottom Links */}
                 <div className="mt-2 mb-2  text-center text-sm text-[var(--text-muted)]">
-                    <a href="/terms" className="hover:underline">
-                        Terms
-                    </a>
+                    <Link className="hover:underline" href=" /leagle/privacy-policy">Privacy</Link>
                     {" · "}
-                    <a href="/privacy" className="hover:underline">
-                        Privacy
-                    </a>
+                    <Link className="hover:underline" href="/leagle/terms">Terms</Link>
                     {" · "}
                     <a href="/help" className="hover:underline">
                         Help
                     </a>
+                    {" . "}
                 </div>
             </div>
-        </main>
+        </main >
     );
 }

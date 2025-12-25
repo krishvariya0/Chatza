@@ -4,48 +4,48 @@ import { showToast } from "@/lib/toast";
 import { Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
+import { useForm } from "react-hook-form";
+
+type ResetPasswordForm = {
+    password: string;
+    confirmPassword: string;
+};
 
 function ResetPasswordContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [loading, setLoading] = useState(false);
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors, isSubmitting },
+    } = useForm<ResetPasswordForm>();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const password = watch("password");
 
+    const onSubmit = async (data: ResetPasswordForm) => {
         if (!token) {
             showToast.error("Invalid or expired reset link");
             return;
         }
 
-        if (password.length < 6) {
-            showToast.error("Password must be at least 6 characters");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            showToast.error("Passwords do not match");
-            return;
-        }
-
-        setLoading(true);
-
         try {
             const res = await fetch("/api/auth/reset-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, password }),
+                body: JSON.stringify({
+                    token,
+                    password: data.password,
+                }),
             });
 
-            const data = await res.json();
+            const result = await res.json();
 
-            if (!res.ok || !data.success) {
-                showToast.error(data.message || "Reset failed");
+            if (!res.ok || !result.success) {
+                showToast.error(result.message || "Reset failed");
                 return;
             }
 
@@ -53,8 +53,6 @@ function ResetPasswordContent() {
             router.push("/auth/login");
         } catch {
             showToast.error("Something went wrong");
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -68,6 +66,7 @@ function ResetPasswordContent() {
 
     return (
         <div className="w-full max-w-md rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-sm sm:p-8">
+            {/* Header */}
             <div className="mb-6 text-center">
                 <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
                     Reset Password
@@ -77,7 +76,9 @@ function ResetPasswordContent() {
                 </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
                 {/* New Password */}
                 <div>
                     <label className="mb-1 block text-sm font-medium">
@@ -87,12 +88,21 @@ function ResetPasswordContent() {
                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-soft)]" />
                         <input
                             type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
+                            {...register("password", {
+                                required: "Password is required",
+                                minLength: {
+                                    value: 8,
+                                    message: "Password must be at least 8 characters",
+                                },
+                            })}
                             className="w-full rounded-lg border bg-transparent py-2.5 pl-10 pr-3 text-sm focus:ring-2"
                         />
                     </div>
+                    {errors.password && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.password.message}
+                        </p>
+                    )}
                 </div>
 
                 {/* Confirm Password */}
@@ -104,25 +114,37 @@ function ResetPasswordContent() {
                         <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-soft)]" />
                         <input
                             type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
+                            {...register("confirmPassword", {
+                                required: "Please confirm your password",
+                                validate: (value) =>
+                                    value === password || "Passwords do not match",
+                            })}
                             className="w-full rounded-lg border bg-transparent py-2.5 pl-10 pr-3 text-sm focus:ring-2"
                         />
                     </div>
+                    {errors.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-500">
+                            {errors.confirmPassword.message}
+                        </p>
+                    )}
                 </div>
 
+                {/* Submit */}
                 <button
-                    disabled={loading}
+                    disabled={isSubmitting}
                     className="w-full rounded-lg bg-[var(--btn-bg)] py-2.5 text-white disabled:opacity-60"
                 >
-                    {loading ? "Updating..." : "Update Password"}
+                    {isSubmitting ? "Updating..." : "Update Password"}
                 </button>
             </form>
 
+            {/* Footer */}
             <div className="mt-6 text-center text-sm">
                 Remembered your password?{" "}
-                <Link href="/auth/login" className="text-[var(--btn-bg)] hover:underline">
+                <Link
+                    href="/auth/login"
+                    className="text-[var(--btn-bg)] hover:underline"
+                >
                     Back to Login
                 </Link>
             </div>
@@ -132,11 +154,13 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-[var(--text-muted)]">Loading...</div>
-            </div>
-        }>
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="text-[var(--text-muted)]">Loading...</div>
+                </div>
+            }
+        >
             <ResetPasswordContent />
         </Suspense>
     );

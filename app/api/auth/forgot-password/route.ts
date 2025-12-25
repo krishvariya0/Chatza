@@ -91,7 +91,7 @@ export async function POST(req: Request) {
                         
                         <div style="background-color: #fff5f5; border-left: 4px solid #e53e3e; padding: 15px; margin-bottom: 20px;">
                             <p style="color: #c53030; font-size: 14px; margin: 0;">
-                                <strong>Security Note:</strong> This link will expire in <strong>15 minutes</strong>.
+                                <strong>Security Note:</strong> This link will expire in <strong>5 minutes</strong>.
                             </p>
                         </div>
                     </td>

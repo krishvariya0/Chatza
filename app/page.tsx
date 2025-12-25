@@ -219,6 +219,11 @@ export default function Home() {
                   <li>
                     <Link href="/leagle/cookie" >Cookie Policy</Link>
                   </li>
+                  <li>
+                    <Link className="hover:underline" href="/legal/help">
+                      Help
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
