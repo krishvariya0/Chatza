@@ -19,10 +19,9 @@ export default function AuthLayout({
                     {" · "}
                     <Link className="hover:underline" href="/leagle/terms">Terms</Link>
                     {" · "}
-                    <a href="/help" className="hover:underline">
+                    <Link href="/leagle/help" className="hover:underline">
                         Help
-                    </a>
-                    {" . "}
+                    </Link>
                 </div>
             </div>
         </main >

@@ -5,7 +5,7 @@ import { Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 type ResetPasswordForm = {
     password: string;
@@ -20,11 +20,11 @@ function ResetPasswordContent() {
     const {
         register,
         handleSubmit,
-        watch,
+        control,
         formState: { errors, isSubmitting },
     } = useForm<ResetPasswordForm>();
 
-    const password = watch("password");
+    const password = useWatch({ control, name: "password" });
 
     const onSubmit = async (data: ResetPasswordForm) => {
         if (!token) {
