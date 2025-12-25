@@ -1,9 +1,10 @@
 
-export default function page() {
-    <>
+const page = () => {
+    return (
         <div>
-            dkjahgjhkj&apos;sdlkjhgjhbn,mk
-
+            <h1>welcome to feed   </h1>
         </div>
-    </>
+    )
 }
+
+export default page

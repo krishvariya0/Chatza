@@ -1,11 +1,20 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { BsMoonStars } from 'react-icons/bs';
 import { LuSunDim } from 'react-icons/lu';
 import { useTheme } from '../ThemeProvider';
 
 export function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Show default icon during SSR/hydration to prevent mismatch
+    const IconComponent = mounted ? (theme === 'light' ? BsMoonStars : LuSunDim) : BsMoonStars;
 
     return (
         <button
@@ -16,11 +25,7 @@ export function ThemeToggle() {
                  hover:bg-gray-300 dark:hover:bg-gray-600"
             aria-label="Toggle theme"
         >
-            {theme === 'light' ? (
-                <BsMoonStars className="w-5 h-5" />
-            ) : (
-                <LuSunDim className="w-5 h-5" />
-            )}
+            <IconComponent className="w-5 h-5" />
         </button>
     );
 }

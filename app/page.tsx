@@ -23,9 +23,9 @@ export default function Home() {
 
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
-            <button className="hidden sm:block text-sm sm:text-base font-medium transition-colors" style={{ color: 'var(--text-muted)' }}>
+            <Link href="auth/login" className="hidden sm:block text-sm sm:text-base font-medium transition-colors" style={{ color: 'var(--text-muted)' }}>
               Login
-            </button>
+            </Link>
             <Link href="auth/register" className="bg-[var(--btn-bg)] text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
               Get Started
             </Link>
@@ -48,9 +48,9 @@ export default function Home() {
           </p>
 
           <div className="mt-8 sm:mt-10 flex justify-center lg:justify-start">
-            <button className="bg-red-500 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-red-600 transition">
+            <Link href="auth/register" className="bg-red-500 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-red-600 transition">
               Join Chatza
-            </button>
+            </Link>
           </div>
 
           <p className="mt-4 sm:mt-6 text-sm sm:text-base flex justify-center lg:justify-start items-center gap-3" style={{ color: 'var(--text-soft)' }}>
@@ -126,30 +126,26 @@ export default function Home() {
         </p>
 
         <div className="mt-12 sm:mt-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10">
-          {[
-            {
-              title: "Chronological Feeds",
-              desc: "See posts in the order they happened. No hidden algorithms."
-            },
-            {
-              title: "Premium Privacy",
-              desc: "Your data belongs to you with end-to-end encryption."
-            },
-            {
-              title: "High-Res Media",
-              desc: "Upload 4K photos and videos for free."
-            }
-          ].map(item => (
-            <div
-              key={item.title}
-              className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}
-            >
-              <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
-              <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
-                {item.desc}
-              </p>
-            </div>
-          ))}
+          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
+            <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>Chronological Feeds</h3>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
+              See posts in the order they happened. No hidden algorithms.
+            </p>
+          </div>
+
+          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
+            <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>Premium Privacy</h3>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
+              Your data belongs to you with end-to-end encryption.
+            </p>
+          </div>
+
+          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
+            <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>High-Res Media</h3>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
+              Upload 4K photos and videos for free.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -166,9 +162,9 @@ export default function Home() {
           </p>
 
           <div className="mt-8 sm:mt-10 flex justify-center">
-            <button className="bg-red-500 text-amber-50 px-8 sm:px-10 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-semibold hover:bg-red-600 transition">
+            <Link href="auth/register" className="bg-red-500 text-amber-50 px-8 sm:px-10 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-semibold hover:bg-red-600 transition">
               Create Free Account
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -214,9 +210,15 @@ export default function Home() {
               <div>
                 <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Legal</h4>
                 <ul className="space-y-3" style={{ color: 'var(--text-soft)' }}>
-                  <li>Privacy Policy</li>
-                  <li>Terms of Service</li>
-                  <li>Cookie Policy</li>
+                  <li>
+                    <Link href="/leagle/privacy-policy">Privacy Policy</Link>
+                  </li>
+                  <li>
+                    <Link href="/leagle/terms">Terms of Service</Link>
+                  </li>
+                  <li>
+                    <Link href="/leagle/cookie" >Cookie Policy</Link>
+                  </li>
                 </ul>
               </div>
 

@@ -16,8 +16,73 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Chatza",
-  description: "A modern social platform built for authentic connections",
+  metadataBase: new URL("https://chatza.com"), // change when deployed
+
+  title: {
+    default: "Chatza",
+    template: "%s · Chatza",
+  },
+
+  description:
+    "Chatza is a modern social platform built for authentic connections, meaningful conversations, and a secure digital experience.",
+
+  applicationName: "Chatza",
+
+  keywords: [
+    "Chatza",
+    "social media",
+    "chat application",
+    "modern social platform",
+    "secure chat",
+    "Next.js app",
+  ],
+
+  authors: [{ name: "Chatza Team" }],
+
+  creator: "Chatza",
+  publisher: "Chatza",
+
+  robots: {
+    index: true,
+    follow: true,
+  },
+
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://chatza.com",
+    siteName: "Chatza",
+    title: "Chatza – Modern Social Platform",
+    description:
+      "Connect authentically with people through Chatza — a modern, secure, and beautifully designed social platform.",
+    images: [
+      {
+        url: "/og-image.png", // add later
+        width: 1200,
+        height: 630,
+        alt: "Chatza – Social Platform",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Chatza – Modern Social Platform",
+    description:
+      "A modern social platform built for authentic connections and meaningful conversations.",
+    images: ["/og-image.png"],
+    creator: "@chatza", // optional
+  },
+
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+
+  manifest: "/site.webmanifest",
+
+  category: "technology",
 };
 
 export default function RootLayout({

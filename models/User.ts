@@ -23,6 +23,17 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
+
+    resetPasswordToken: {
+      type: String,
+      default: null,
+      required: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
+      required: false,
+    },
   },
   { timestamps: true }
 );

@@ -149,6 +149,14 @@ export default function LoginPage() {
                         <ArrowRight size={18} />
                     </button>
                 </form>
+                <div className="flex justify-end">
+                    <Link
+                        href="/forgotpassword/forgotconfirm"
+                        className="text-xs font-medium text-[var(--btn-text-muted)] hover:underline hover:text-[var(--btn-text)]"
+                    >
+                        Forgot password?
+                    </Link>
+                </div>
 
                 {/* Footer */}
                 <div className="mt-8 pt-6 border-t border-[var(--border-color)] text-center">

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { IoReturnDownBack } from "react-icons/io5";
 
 
 type RegisterFormData = {
@@ -62,6 +63,7 @@ export default function RegisterPage() {
     return (
         <div className="w-full max-w-[450px] pt-2">
             <div className="rounded-3xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl px-8 py-5">
+                <Link href="/"><IoReturnDownBack /></Link>
 
                 {/* Header */}
                 <div className="flex flex-col items-center mb-8">
@@ -93,6 +95,7 @@ export default function RegisterPage() {
                                     minLength: { value: 3, message: "Minimum 3 characters" },
                                 })}
                                 placeholder="John Doe"
+                                suppressHydrationWarning
                                 className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
                 ${errors.fullName ? "border-red-500" : "border-[var(--border-color)]"}`}
                             />
@@ -117,6 +120,7 @@ export default function RegisterPage() {
                                     pattern: { value: /^[a-zA-Z0-9_]+$/, message: "Only letters, numbers & underscores allowed", },
                                 })}
                                 placeholder="johndoe"
+                                suppressHydrationWarning
                                 className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
                 ${errors.username ? "border-red-500" : "border-[var(--border-color)]"}`}
                             />
@@ -141,6 +145,7 @@ export default function RegisterPage() {
                                     pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address", },
                                 })}
                                 placeholder="name@example.com"
+                                suppressHydrationWarning
                                 className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
                 ${errors.email ? "border-red-500" : "border-[var(--border-color)]"}`}
                             />
@@ -166,6 +171,7 @@ export default function RegisterPage() {
                                     minLength: { value: 8, message: "Password must be at least 8 characters", },
                                 })}
                                 placeholder="••••••••"
+                                suppressHydrationWarning
                                 className={`w-full pl-10 pr-12 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
                 ${errors.password ? "border-red-500" : "border-[var(--border-color)]"}`}
                             />
@@ -173,6 +179,7 @@ export default function RegisterPage() {
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]"
+                                suppressHydrationWarning
                             >
                                 <Eye size={18} />
                             </button>
@@ -189,6 +196,7 @@ export default function RegisterPage() {
                         type="submit"
                         disabled={loading}
                         className="w-full bg-[var(--btn-bg)] text-white font-semibold py-3.5 rounded-xl shadow-lg hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                        suppressHydrationWarning
                     >
 
                         {loading ? "Creating account..." : "Register"}
