@@ -34,7 +34,7 @@ export default function ForgotConfirmPage() {
                 showToast.success(data.message); // email sent
                 setIdentifier("");
             }
-        } catch (error) {
+        } catch {
             showToast.error("Something went wrong");
         } finally {
             setLoading(false);

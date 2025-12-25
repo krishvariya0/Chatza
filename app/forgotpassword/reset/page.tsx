@@ -1,11 +1,12 @@
 "use client";
 
+import { showToast } from "@/lib/toast";
 import { Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
@@ -18,17 +19,17 @@ export default function ResetPasswordPage() {
         e.preventDefault();
 
         if (!token) {
-            alert("Invalid or expired reset link");
+            showToast.error("Invalid or expired reset link");
             return;
         }
 
         if (password.length < 6) {
-            alert("Password must be at least 6 characters");
+            showToast.error("Password must be at least 6 characters");
             return;
         }
 
         if (password !== confirmPassword) {
-            alert("Passwords do not match");
+            showToast.error("Passwords do not match");
             return;
         }
 
@@ -44,14 +45,14 @@ export default function ResetPasswordPage() {
             const data = await res.json();
 
             if (!res.ok || !data.success) {
-                alert(data.message || "Reset failed");
+                showToast.error(data.message || "Reset failed");
                 return;
             }
 
-            alert("Password updated successfully. Please login.");
+            showToast.success("Password updated successfully. Please login.");
             router.push("/auth/login");
         } catch {
-            alert("Something went wrong");
+            showToast.error("Something went wrong");
         } finally {
             setLoading(false);
         }
@@ -126,5 +127,17 @@ export default function ResetPasswordPage() {
                 </Link>
             </div>
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-[var(--text-muted)]">Loading...</div>
+            </div>
+        }>
+            <ResetPasswordContent />
+        </Suspense>
     );
 }

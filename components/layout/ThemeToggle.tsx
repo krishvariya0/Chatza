@@ -1,20 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { BsMoonStars } from 'react-icons/bs';
 import { LuSunDim } from 'react-icons/lu';
 import { useTheme } from '../ThemeProvider';
 
 export function ThemeToggle() {
     const { theme, toggleTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+
 
     // Show default icon during SSR/hydration to prevent mismatch
-    const IconComponent = mounted ? (theme === 'light' ? BsMoonStars : LuSunDim) : BsMoonStars;
+    const IconComponent = theme === 'light' ? BsMoonStars : LuSunDim;
 
     return (
         <button
