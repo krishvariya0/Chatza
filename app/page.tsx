@@ -17,7 +17,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
 
           <ThemeLogo
-            className="h-15 sm:h-25 md:h-30 lg:h-20 xl:h-30 w-auto bg-none   "
+            className="h-15 sm:h-25 md:h-30 lg:h-20 xl:h-30 w-auto"
           />
 
 
@@ -26,7 +26,7 @@ export default function Home() {
             <Link href="auth/login" className="hidden sm:block text-sm sm:text-base font-medium transition-colors" style={{ color: 'var(--text-muted)' }}>
               Login
             </Link>
-            <Link href="auth/register" className="bg-[var(--btn-bg)] text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
+            <Link href="auth/register" className="bg-(--btn-bg) text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
               Get Started
             </Link>
           </div>
@@ -66,7 +66,7 @@ export default function Home() {
               src={appPreviewImg}
               alt="App Preview"
               className="rounded-2xl 
-                         w-[220px] sm:w-[280px] md:w-[340px] lg:w-[420px]"
+                         w-55 sm:w-70 md:w-85 lg:w-105"
             />
           </div>
 
@@ -99,7 +99,7 @@ export default function Home() {
               style={{ borderColor: 'var(--section-bg)' }}
             />
           ))}
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-semibold transition-colors" style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}>
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-semibold transition-colors" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }}>
             +2M
           </div>
         </div>
@@ -220,7 +220,7 @@ export default function Home() {
                     <Link href="/leagle/cookie" >Cookie Policy</Link>
                   </li>
                   <li>
-                    <Link className="hover:underline" href="/legal/help">
+                    <Link className="hover:underline" href="/leagle/help">
                       Help
                     </Link>
                   </li>

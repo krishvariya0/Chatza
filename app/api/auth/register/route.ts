@@ -1,22 +1,12 @@
+import { createSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-
-// export async function GET(request: NextRequest) {
-//   // Logic to fetch data from a database or external service
-//   const users = [
-//     { id: 1, name: 'Alice' },
-//     { id: 2, name: 'Bob' },
-//   ];
-
-//   // Return a JSON response
-//   return NextResponse.json(users, { status: 200 });
-// }
 
 export async function POST(req: NextRequest) {
   try {
-
     console.log("Register route called");
     const { fullName, username, email, password } = await req.json();
 
@@ -44,15 +34,37 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await User.create({
+    const newUser = await User.create({
       fullName,
       username,
       email,
       password: hashedPassword,
     });
 
+    // Create session
+    const token = await createSession(newUser._id.toString());
+
+    // Set cookie
+    const cookieStore = await cookies();
+    cookieStore.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: "/",
+    });
+
     return NextResponse.json(
-      { success: true, message: "User registered successfully" },
+      {
+        success: true,
+        message: "User registered successfully",
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          fullName: newUser.fullName,
+          onboardingCompleted: newUser.onboardingCompleted,
+        },
+      },
       { status: 201 }
     );
   } catch (error) {
@@ -63,4 +75,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-

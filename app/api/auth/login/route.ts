@@ -1,6 +1,8 @@
+import { createSession } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -36,6 +38,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // Create session
+    const token = await createSession(user._id.toString());
+
+    // Set cookie
+    const cookieStore = await cookies();
+    cookieStore.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: "/",
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -45,6 +60,7 @@ export async function POST(req: Request) {
           fullName: user.fullName,
           username: user.username,
           email: user.email,
+          onboardingCompleted: user.onboardingCompleted,
         },
       },
       { status: 200 }

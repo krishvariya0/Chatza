@@ -12,15 +12,15 @@ const HomeBackButton = () => {
         px-3 py-2
         text-sm font-medium
         transition
-        bg-[var(--back-btn-bg)]
-        text-[var(--back-btn-text)]
-        border-[var(--back-btn-border)]
-        hover:bg-[var(--back-btn-hover-bg)]
+        bg-(--back-btn-bg)
+        text-(--back-btn-text)
+        border-(--back-btn-border)
+        hover:bg-(--back-btn-hover-bg)
         focus:outline-none
         focus:ring-2
-        focus:ring-[var(--btn-bg)]
+        focus:ring-(--btn-bg)
         focus:ring-offset-2
-        focus:ring-offset-[var(--card-bg)]
+        focus:ring-offset-(--card-bg)
       "
         >
             <IoReturnDownBack className="text-base shrink-0" />

@@ -1,136 +1,47 @@
 @import "tailwindcss";
 
-/* ================= THEME FLASH PREVENTION ================= */
+/* ================= THEME TOKENS ================= */
 :root {
   color-scheme: light;
 
   /* Brand */
-  --btn-bg: #fb2c36;
+  --brand: #fb2c36;
+
+  /* Backgrounds */
+  --bg-primary: #faf7f7;
+  --bg-card: #ffffff;
+
+  /* Text */
+  --text-primary: #111827;
+  --text-muted: #6b7280;
+  --text-soft: #9ca3af;
+
+  /* Borders */
+  --border-color: #e5e7eb;
+
+  /* Buttons */
+  --btn-bg: var(--brand);
+  --btn-text: var(--brand);
   --btn-text: #ffffff;
-  --btn-text: #ffffff;
-  --btn-text-red: #fb2c36;
-
-
-  /* Back Button */
-  --back-btn-bg: #fff5f5;
-  --back-btn-text: #fb2c36;
-  --back-btn-border: #fecaca;
-  --back-btn-hover-bg: #ffe4e6;
-
-  /* Toast */
-  --toast-text: #ffffff;
 }
 
+/* 🌙 Dark mode */
 html.dark {
   color-scheme: dark;
 
-  /* Back Button (Dark) */
-  --back-btn-bg: #2a0f12;
-  --back-btn-text: #fb2c36;
-  --back-btn-border: #7f1d1d;
-  --back-btn-hover-bg: #3a1216;
+  --bg-primary: #030712;
+  --bg-card: #111827;
+
+  --text-primary: #f9fafb;
+  --text-muted: #d1d5db;
+
+  --border-color: #374151;
 }
 
-/* ================= BASE RESET ================= */
+/* ================= BASE ================= */
 @layer base {
-  html {
-    font-size: 16px;
-  }
-
   body {
-    font-family: var(--font-geist-sans), system-ui, -apple-system,
-      BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  *, *::before, *::after {
-    box-sizing: border-box;
-  }
-
-  img {
-    max-width: 100%;
-    display: block;
-  }
-
-  button {
-    font-family: inherit;
-  }
-}
-
-/* ================= CORE THEME ================= */
-@layer utilities {
-  :root {
-    --bg-primary: #faf7f7;
-    --text-primary: #111827;
-    --text-muted: #6b7280;
-    --text-soft: #9ca3af;
-    --border-color: #e5e7eb;
-
-    --card-bg: #ffffff;
-    --section-bg: #ffffff;
-
-    --cta-bg: #f3f4f6;
-    --cta-text: #111827;
-
-  }
-
-  html.dark {
-    --bg-primary: #030712;
-    --text-primary: #f9fafb;
-    --text-muted: #d1d5db;
-    --text-soft: #9ca3af;
-    --border-color: #374151;
-
-    --card-bg: #111827;
-    --section-bg: #111827;
-
-    --cta-bg: #030712;
-    --cta-text: #ffffff;
-  }
-
-  html.dark body {
-    background-color: #030712 !important;
-    color: #f9fafb !important;
-  }
-
-  html:not(.dark) body {
-    background-color: #faf7f7 !important;
-    color: #111827 !important;
-  }
-}
-
-/* ================= TOAST SYSTEM ================= */
-@layer utilities {
-  :root {
-    --toast-success-bg: #ecfdf5;
-    --toast-success-text: #065f46;
-    --toast-success-border: #10b981;
-
-    --toast-error-bg: #fef2f2;
-    --toast-error-text: #991b1b;
-    --toast-error-border: var(--btn-bg);
-
-    --toast-warning-bg: #fffbeb;
-    --toast-warning-text: #92400e;
-    --toast-warning-border: #f59e0b;
-
-    --toast-info-bg: #eff6ff;
-    --toast-info-text: #1e40af;
-    --toast-info-border: #3b82f6;
-  }
-
-  html.dark {
-    --toast-success-bg: #022c22;
-    --toast-success-text: #a7f3d0;
-
-    --toast-error-bg: #2a0f12;
-    --toast-error-text: #fecaca;
-
-    --toast-warning-bg: #2a1f0a;
-    --toast-warning-text: #fde68a;
-
-    --toast-info-bg: #0b1e3a;
-    --toast-info-text: #bfdbfe;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 }

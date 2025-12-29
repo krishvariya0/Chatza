@@ -7,7 +7,7 @@ export default function ForgotPasswordLayout({
     children: React.ReactNode;
 }) {
     return (
-        <main className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center">
+        <main className="min-h-screen bg-(--bg-primary) flex flex-col items-center">
 
             {/* Logo */}
             <header className="mt-6 mb-4">
@@ -22,16 +22,16 @@ export default function ForgotPasswordLayout({
             </section>
 
             {/* Footer */}
-            <footer className="mt-4 mb-6 text-center text-sm text-[var(--text-muted)]">
-                <Link className="hover:underline" href="/legal/privacy-policy">
+            <footer className="mt-4 mb-6 text-center text-sm text-(--text-muted)">
+                <Link className="hover:underline" href="/leagle/privacy-policy">
                     Privacy
                 </Link>
                 {" · "}
-                <Link className="hover:underline" href="/legal/terms">
+                <Link className="hover:underline" href="/leagle/terms">
                     Terms
                 </Link>
                 {" · "}
-                <Link className="hover:underline" href="/legal/help">
+                <Link className="hover:underline" href="/leagle/help">
                     Help
                 </Link>
             </footer>

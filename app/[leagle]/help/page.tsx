@@ -11,16 +11,16 @@ import { useState } from "react";
 ========================= */
 export default function HelpPage() {
     return (
-        <main className="min-h-screen bg-[var(--bg-primary)] px-4 py-16">
+        <main className="min-h-screen bg-(--bg-primary) px-4 py-16">
 
             {/* =========================
                PAGE HEADER SECTION
             ========================= */}
             <section className="text-center max-w-2xl mx-auto mb-16">
-                <h1 className="text-4xl font-semibold text-[var(--text-primary)]">
+                <h1 className="text-4xl font-semibold text-(--text-primary)">
                     Help Center
                 </h1>
-                <p className="mt-4 text-[var(--text-muted)]">
+                <p className="mt-4 text-(--text-muted)">
                     Find answers to common questions or contact our support team.
                 </p>
             </section>
@@ -60,7 +60,7 @@ export default function HelpPage() {
                FAQ SECTION
             ========================= */}
             <section className="max-w-3xl mx-auto mb-24">
-                <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-6">
+                <h2 className="text-2xl font-semibold text-(--text-primary) mb-6">
                     Frequently Asked Questions
                 </h2>
 
@@ -88,10 +88,10 @@ export default function HelpPage() {
                CONTACT FORM SECTION
             ========================= */}
             <section className="max-w-3xl mx-auto">
-                <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">
+                <h2 className="text-2xl font-semibold text-(--text-primary) mb-2">
                     Contact Us
                 </h2>
-                <p className="text-[var(--text-muted)] mb-8">
+                <p className="text-(--text-muted) mb-8">
                     Send us a message and we’ll get back to you.
                 </p>
 
@@ -119,25 +119,25 @@ function HelpCard({
         <div
             className="
                 rounded-2xl
-                border border-[var(--border-color)]
-                bg-[var(--card-bg)]
+                border border-(--border-color)
+                bg-(--card-bg)
                 p-6
                 transition
                 hover:shadow-md
             "
         >
             {/* Icon (RED via --btn-bg) */}
-            <div className="mb-4 text-[var(--btn-bg)]">
+            <div className="mb-4 text-(--btn-bg)">
                 {icon}
             </div>
 
             {/* Title */}
-            <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+            <h3 className="font-semibold text-(--text-primary) mb-1">
                 {title}
             </h3>
 
             {/* Description */}
-            <p className="text-sm text-[var(--text-muted)]">
+            <p className="text-sm text-(--text-muted)">
                 {desc}
             </p>
         </div>
@@ -153,8 +153,8 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         <details
             className="
                 rounded-xl
-                border border-[var(--border-color)]
-                bg-[var(--card-bg)]
+                border border-(--border-color)
+                bg-(--card-bg)
                 p-4
             "
         >
@@ -162,14 +162,14 @@ function FaqItem({ q, a }: { q: string; a: string }) {
                 className="
                     cursor-pointer
                     font-medium
-                    text-[var(--text-primary)]
-                    marker:text-[var(--btn-bg)]
+                    text-(--text-primary)
+                    marker:text-(--btn-bg)
                 "
             >
                 {q}
             </summary>
 
-            <p className="mt-2 text-sm text-[var(--text-muted)]">
+            <p className="mt-2 text-sm text-(--text-muted)">
                 {a}
             </p>
         </details>
@@ -223,14 +223,14 @@ function ContactForm() {
             className="
                 space-y-5
                 rounded-2xl
-                border border-[var(--border-color)]
-                bg-[var(--card-bg)]
+                border border-(--border-color)
+                bg-(--card-bg)
                 p-6
             "
         >
             {/* Name Field */}
             <div>
-                <label className="block text-sm mb-1 text-[var(--text-primary)]">
+                <label className="block text-sm mb-1 text-(--text-primary)">
                     Your Name
                 </label>
                 <input
@@ -239,19 +239,19 @@ function ContactForm() {
                     className="
                         w-full
                         rounded-xl
-                        border border-[var(--border-color)]
+                        border border-(--border-color)
                         bg-transparent
                         px-4 py-2
-                        text-[var(--text-primary)]
+                        text-(--text-primary)
                         outline-none
-                        focus:border-[var(--btn-bg)]
+                        focus:border-(--btn-bg)
                     "
                 />
             </div>
 
             {/* Email Field */}
             <div>
-                <label className="block text-sm mb-1 text-[var(--text-primary)]">
+                <label className="block text-sm mb-1 text-(--text-primary)">
                     Email Address
                 </label>
                 <input
@@ -261,19 +261,19 @@ function ContactForm() {
                     className="
                         w-full
                         rounded-xl
-                        border border-[var(--border-color)]
+                        border border-(--border-color)
                         bg-transparent
                         px-4 py-2
-                        text-[var(--text-primary)]
+                        text-(--text-primary)
                         outline-none
-                        focus:border-[var(--btn-bg)]
+                        focus:border-(--btn-bg)
                     "
                 />
             </div>
 
             {/* Message Field */}
             <div>
-                <label className="block text-sm mb-1 text-[var(--text-primary)]">
+                <label className="block text-sm mb-1 text-(--text-primary)">
                     Message
                 </label>
                 <textarea
@@ -283,12 +283,12 @@ function ContactForm() {
                     className="
                         w-full
                         rounded-xl
-                        border border-[var(--border-color)]
+                        border border-(--border-color)
                         bg-transparent
                         px-4 py-2
-                        text-[var(--text-primary)]
+                        text-(--text-primary)
                         outline-none
-                        focus:border-[var(--btn-bg)]
+                        focus:border-(--btn-bg)
                     "
                 />
             </div>
@@ -302,7 +302,7 @@ function ContactForm() {
                 disabled={loading}
                 className="
                     rounded-xl
-                    bg-[var(--btn-bg)]
+                    bg-(--btn-bg)
                     px-6 py-3
                     text-white
                     font-medium

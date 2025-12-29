@@ -2,9 +2,9 @@ import HomeBackButton from "@/components/layout/HomeBackButton";
 
 export default function TermsOfServicePage() {
     return (
-        <main className="min-h-screen bg-[var(--bg-primary)] px-4 py-8 sm:py-10">
+        <main className="min-h-screen bg-(--bg-primary) px-4 py-8 sm:py-10">
             <div className="mx-auto max-w-3xl">
-                <div className="rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-sm sm:p-8">
+                <div className="rounded-2xl border border-(--border-color) bg-(--card-bg) p-6 shadow-sm sm:p-8">
 
                     {/* Back Button */}
                     <div className="mb-6">
@@ -17,17 +17,17 @@ export default function TermsOfServicePage() {
                             📄
                         </div>
                         <div>
-                            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+                            <h1 className="text-2xl font-semibold text-(--text-primary)">
                                 Terms of Service
                             </h1>
-                            <p className="mt-1 text-sm text-[var(--text-muted)]">
+                            <p className="mt-1 text-sm text-(--text-muted)">
                                 Last updated: December 25, 2025
                             </p>
                         </div>
                     </header>
 
                     {/* Intro */}
-                    <p className="mb-8 text-sm leading-relaxed text-[var(--text-muted)]">
+                    <p className="mb-8 text-sm leading-relaxed text-(--text-muted)">
                         These Terms of Service govern your access to and use of Chatza.
                         By accessing or using our platform, you agree to be bound by these
                         terms. If you do not agree, please do not use Chatza.
@@ -81,7 +81,7 @@ export default function TermsOfServicePage() {
                     </TermsSection>
 
                     {/* Footer */}
-                    <p className="mt-10 text-xs text-[var(--text-soft)]">
+                    <p className="mt-10 text-xs text-(--text-soft)">
                         If you have any questions about these Terms, please contact us at{" "}
                         <a
                             href="mailto:support@chatza.com"
@@ -108,16 +108,16 @@ function TermsSection({
     children: React.ReactNode;
 }) {
     return (
-        <section className="mb-5 rounded-xl border border-[var(--border-color)] bg-[var(--section-bg)]">
-            <div className="flex items-center gap-3 border-b border-[var(--border-color)] px-4 py-3">
+        <section className="mb-5 rounded-xl border border-(--border-color) bg-(--section-bg)">
+            <div className="flex items-center gap-3 border-b border-(--border-color) px-4 py-3">
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-100 text-xs font-semibold text-red-600 dark:bg-red-900/30 dark:text-red-400">
                     {number}
                 </div>
-                <h2 className="text-sm font-medium text-[var(--text-primary)]">
+                <h2 className="text-sm font-medium text-(--text-primary)">
                     {title}
                 </h2>
             </div>
-            <div className="px-4 py-4 text-sm text-[var(--text-muted)] leading-relaxed">
+            <div className="px-4 py-4 text-sm text-(--text-muted) leading-relaxed">
                 {children}
             </div>
         </section>

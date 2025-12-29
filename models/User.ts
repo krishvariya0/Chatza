@@ -23,7 +23,31 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
-
+    profilePicture: {
+      type: String,
+      default: null,
+    },
+    bio: {
+      type: String,
+      default: "",
+      maxlength: 160,
+    },
+    location: {
+      type: String,
+      default: "",
+    },
+    website: {
+      type: String,
+      default: "",
+    },
+    joinedDate: {
+      type: Date,
+      default: Date.now,
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
+    },
     resetPasswordToken: {
       type: String,
       default: null,

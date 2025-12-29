@@ -41,7 +41,13 @@ export default function LoginPage() {
             }
 
             showToast.success("Welcome back 🎉");
-            router.push("/feed");
+
+            // Check if onboarding is completed
+            if (result.user.onboardingCompleted) {
+                router.push(`/profile/${result.user.username}`);
+            } else {
+                router.push("/onboarding");
+            }
         } catch {
             showToast.error("Server error");
         } finally {
@@ -54,16 +60,16 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="w-full max-w-[450px] pt-2">
-            <div className="rounded-3xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl px-8 py-5">
+        <div className="w-full max-w-112.5 pt-2">
+            <div className="rounded-3xl bg-(--card-bg) border border-(--border-color) shadow-xl px-8 py-5">
 
                 {/* Header */}
                 <div className="flex flex-col items-center mb-8">
-                    <ThemeLogo className="w-30 h-20" />
-                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+                    <ThemeLogo className="w-32 h-20" />
+                    <h1 className="text-2xl font-bold text-(--text-primary)">
                         Welcome Back
                     </h1>
-                    <p className="mt-2 text-sm text-[var(--text-muted)] text-center">
+                    <p className="mt-2 text-sm text-(--text-muted) text-center">
                         Sign in to continue to Chatza.
                     </p>
                 </div>
@@ -73,12 +79,12 @@ export default function LoginPage() {
 
                     {/* Email or Username */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
+                        <label className="text-xs font-semibold text-(--text-muted) ml-1">
                             Email or Username
                         </label>
                         <div className="relative">
                             <Mail
-                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]"
+                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)"
                                 size={18}
                             />
                             <input
@@ -90,8 +96,8 @@ export default function LoginPage() {
                                     },
                                 })}
                                 placeholder="email or username"
-                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.identifier ? "border-red-500" : "border-[var(--border-color)]"}`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-(--text-primary)
+                ${errors.identifier ? "border-red-500" : "border-(--border-color)"}`}
                             />
                         </div>
                         {errors.identifier && (
@@ -103,12 +109,12 @@ export default function LoginPage() {
 
                     {/* Password */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
+                        <label className="text-xs font-semibold text-(--text-muted) ml-1">
                             Password
                         </label>
                         <div className="relative">
                             <Lock
-                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]"
+                                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)"
                                 size={18}
                             />
                             <input
@@ -121,13 +127,13 @@ export default function LoginPage() {
                                     },
                                 })}
                                 placeholder="••••••••"
-                                className={`w-full pl-10 pr-12 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.password ? "border-red-500" : "border-[var(--border-color)]"}`}
+                                className={`w-full pl-10 pr-12 py-3 rounded-xl bg-transparent border text-sm text-(--text-primary)
+                ${errors.password ? "border-red-500" : "border-(--border-color)"}`}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]"
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)"
                             >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
@@ -143,7 +149,7 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[var(--btn-bg)] text-white font-semibold py-3.5 rounded-xl shadow-lg hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                        className="w-full bg-(--btn-bg) text-white font-semibold py-3.5 rounded-xl shadow-lg hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2"
                     >
                         {loading ? "Signing in..." : "Login"}
                         <ArrowRight size={18} />
@@ -152,19 +158,19 @@ export default function LoginPage() {
                 <div className="flex justify-end">
                     <Link
                         href="/forgotpassword/forgotconfirm"
-                        className="text-xs font-medium text-[var(--btn-text-muted)] hover:underline hover:text-[var(--btn-text)]"
+                        className="text-xs font-medium text-(--text-muted) hover:underline hover:text-(--text-primary)"
                     >
                         Forgot password?
                     </Link>
                 </div>
 
                 {/* Footer */}
-                <div className="mt-8 pt-6 border-t border-[var(--border-color)] text-center">
-                    <p className="text-sm text-[var(--text-muted)]">
+                <div className="mt-8 pt-6 border-t border-(--border-color) text-center">
+                    <p className="text-sm text-(--text-muted)">
                         Don’t have an account?{" "}
                         <Link
                             href="/auth/register"
-                            className="font-semibold text-[var(--btn-text)] hover:underline"
+                            className="font-semibold text-(--btn-bg) hover:underline"
                         >
                             Sign up
                         </Link>

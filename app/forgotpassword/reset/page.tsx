@@ -65,13 +65,14 @@ function ResetPasswordContent() {
     }
 
     return (
-        <div className="w-full max-w-md rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] p-6 shadow-sm sm:p-8">
+        <div className="w-full max-w-md rounded-2xl border border-(--border-color) bg-(--card-bg) p-6 shadow-sm sm:p-8 m-2 ">
+            {/* // <div className="w-full max-w-[450px] rounded-2xl border border-(--border-color) bg-(--card-bg) p-6 shadow-sm sm:p-8 m-2 " > */}
             {/* Header */}
             <div className="mb-6 text-center">
-                <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
+                <h1 className="text-2xl font-semibold text-(--text-primary)">
                     Reset Password
                 </h1>
-                <p className="mt-2 text-sm text-[var(--text-muted)]">
+                <p className="mt-2 text-sm text-(--text-muted)">
                     Enter a new password for your account.
                 </p>
             </div>
@@ -85,7 +86,7 @@ function ResetPasswordContent() {
                         New Password
                     </label>
                     <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-soft)]" />
+                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--text-soft)" />
                         <input
                             type="password"
                             {...register("password", {
@@ -95,6 +96,7 @@ function ResetPasswordContent() {
                                     message: "Password must be at least 8 characters",
                                 },
                             })}
+                            placeholder="••••••••"
                             className="w-full rounded-lg border bg-transparent py-2.5 pl-10 pr-3 text-sm focus:ring-2"
                         />
                     </div>
@@ -111,7 +113,7 @@ function ResetPasswordContent() {
                         Confirm Password
                     </label>
                     <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-soft)]" />
+                        <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--text-soft)" />
                         <input
                             type="password"
                             {...register("confirmPassword", {
@@ -119,6 +121,7 @@ function ResetPasswordContent() {
                                 validate: (value) =>
                                     value === password || "Passwords do not match",
                             })}
+                            placeholder="••••••••"
                             className="w-full rounded-lg border bg-transparent py-2.5 pl-10 pr-3 text-sm focus:ring-2"
                         />
                     </div>
@@ -132,7 +135,7 @@ function ResetPasswordContent() {
                 {/* Submit */}
                 <button
                     disabled={isSubmitting}
-                    className="w-full rounded-lg bg-[var(--btn-bg)] py-2.5 text-white disabled:opacity-60"
+                    className="w-full rounded-lg bg-(--btn-bg) py-2.5 text-white disabled:opacity-60"
                 >
                     {isSubmitting ? "Updating..." : "Update Password"}
                 </button>
@@ -140,10 +143,10 @@ function ResetPasswordContent() {
 
             {/* Footer */}
             <div className="mt-6 text-center text-sm">
-                Remembered your password?{" "}
+                Remembere password?{" "}
                 <Link
                     href="/auth/login"
-                    className="text-[var(--btn-bg)] hover:underline"
+                    className="text-(--btn-bg) hover:underline"
                 >
                     Back to Login
                 </Link>
@@ -157,7 +160,7 @@ export default function ResetPasswordPage() {
         <Suspense
             fallback={
                 <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-[var(--text-muted)]">Loading...</div>
+                    <div className="text-(--text-muted)">Loading...</div>
                 </div>
             }
         >

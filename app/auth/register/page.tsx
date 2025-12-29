@@ -47,7 +47,13 @@ export default function RegisterPage() {
             }
 
             showToast.success("Account created successfully 🎉");
-            router.push("/auth/login");
+
+            // Check if onboarding is completed
+            if (result.user.onboardingCompleted) {
+                router.push(`/profile/${result.user.username}`);
+            } else {
+                router.push("/onboarding");
+            }
         } catch {
             showToast.error("Server error");
         } finally {
@@ -61,17 +67,17 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="w-full max-w-[450px] pt-2">
-            <div className="rounded-3xl bg-[var(--card-bg)] border border-[var(--border-color)] shadow-xl px-8 py-5">
+        <div className="w-full max-w-112.5 pt-2">
+            <div className="rounded-3xl bg-(--card-bg) border border-(--border-color) shadow-xl px-8 py-5">
                 <Link href="/"><IoReturnDownBack /></Link>
 
                 {/* Header */}
                 <div className="flex flex-col items-center mb-8">
-                    <ThemeLogo className="w-30 h-20 " />
-                    <h1 className="text-2xl font-bold text-[var(--text-primary)]">
+                    <ThemeLogo className="w-32 h-20 " />
+                    <h1 className="text-2xl font-bold text-(--text-primary)">
                         Join Chatza
                     </h1>
-                    <p className="mt-2 text-sm text-[var(--text-muted)] text-center">
+                    <p className="mt-2 text-sm text-(--text-muted) text-center">
                         Create your account to start sharing today.
                     </p>
                 </div>
@@ -84,11 +90,11 @@ export default function RegisterPage() {
 
                     {/* Full Name */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
+                        <label className="text-xs font-semibold text-(--text-muted) ml-1">
                             Full Name
                         </label>
                         <div className="relative">
-                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]" size={18} />
+                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)" size={18} />
                             <input
                                 {...register("fullName", {
                                     required: "Full name is required",
@@ -96,8 +102,8 @@ export default function RegisterPage() {
                                 })}
                                 placeholder="John Doe"
                                 suppressHydrationWarning
-                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.fullName ? "border-red-500" : "border-[var(--border-color)]"}`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-(--text-primary)
+                ${errors.fullName ? "border-red-500" : "border-(--border-color)"}`}
                             />
                         </div>
                         {errors.fullName && (
@@ -109,11 +115,11 @@ export default function RegisterPage() {
 
                     {/* Username */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
+                        <label className="text-xs font-semibold text-(--text-muted) ml-1">
                             Username
                         </label>
                         <div className="relative">
-                            <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]" size={18} />
+                            <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)" size={18} />
                             <input
                                 {...register("username", {
                                     required: "Username is required",
@@ -121,8 +127,8 @@ export default function RegisterPage() {
                                 })}
                                 placeholder="johndoe"
                                 suppressHydrationWarning
-                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.username ? "border-red-500" : "border-[var(--border-color)]"}`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-(--text-primary)
+                ${errors.username ? "border-red-500" : "border-(--border-color)"}`}
                             />
                         </div>
                         {errors.username && (
@@ -134,11 +140,11 @@ export default function RegisterPage() {
 
                     {/* Email */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
+                        <label className="text-xs font-semibold text-(--text-muted) ml-1">
                             Email Address
                         </label>
                         <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]" size={18} />
+                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)" size={18} />
                             <input
                                 {...register("email", {
                                     required: "Email is required",
@@ -146,8 +152,8 @@ export default function RegisterPage() {
                                 })}
                                 placeholder="name@example.com"
                                 suppressHydrationWarning
-                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.email ? "border-red-500" : "border-[var(--border-color)]"}`}
+                                className={`w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border text-sm text-(--text-primary)
+                ${errors.email ? "border-red-500" : "border-(--border-color)"}`}
                             />
                         </div>
                         {errors.email && (
@@ -159,11 +165,11 @@ export default function RegisterPage() {
 
                     {/* Password */}
                     <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-[var(--text-muted)] ml-1">
+                        <label className="text-xs font-semibold text-(--text-muted) ml-1">
                             Password
                         </label>
                         <div className="relative">
-                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]" size={18} />
+                            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)" size={18} />
                             <input
                                 type={showPassword ? "text" : "password"}
                                 {...register("password", {
@@ -172,13 +178,13 @@ export default function RegisterPage() {
                                 })}
                                 placeholder="••••••••"
                                 suppressHydrationWarning
-                                className={`w-full pl-10 pr-12 py-3 rounded-xl bg-transparent border text-sm text-[var(--text-primary)]
-                ${errors.password ? "border-red-500" : "border-[var(--border-color)]"}`}
+                                className={`w-full pl-10 pr-12 py-3 rounded-xl bg-transparent border text-sm text-(--text-primary)
+                ${errors.password ? "border-red-500" : "border-(--border-color)"}`}
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-soft)]"
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)"
                                 suppressHydrationWarning
                             >
                                 <Eye size={18} />
@@ -195,7 +201,7 @@ export default function RegisterPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-[var(--btn-bg)] text-white font-semibold py-3.5 rounded-xl shadow-lg hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2"
+                        className="w-full bg-(--btn-bg) text-white font-semibold py-3.5 rounded-xl shadow-lg hover:opacity-90 active:scale-[0.98] transition flex items-center justify-center gap-2"
                         suppressHydrationWarning
                     >
 
@@ -206,12 +212,12 @@ export default function RegisterPage() {
                 </form>
 
                 {/* Footer */}
-                <div className="mt-8 pt-6 border-t border-[var(--border-color)] text-center">
-                    <p className="text-sm text-[var(--text-muted)]">
+                <div className="mt-8 pt-6 border-t border-(--border-color) text-center">
+                    <p className="text-sm text-(--text-muted)">
                         Already have an account?{" "}
                         <Link
                             href="/auth/login"
-                            className="font-semibold text-[var(--btn-text)] hover:underline"
+                            className="font-semibold text-(--btn-bg) hover:underline"
                         >
                             Log in
                         </Link>
