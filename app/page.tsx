@@ -10,20 +10,19 @@ import { IoLogoInstagram } from "react-icons/io";
 
 export default function Home() {
   return (
-    <main className="overflow-x-hidden transition-colors duration-300" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <main className="overflow-x-hidden transition-colors duration-300 bg-(--bg-primary) text-(--text-primary)">
 
       {/* ================= NAVBAR ================= */}
-      <header className="sticky top-0 z-50 backdrop-blur border-b transition-colors duration-300" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
+      <header className="sticky top-0 z-50 backdrop-blur border-b transition-colors duration-300 bg-(--bg-primary) border-(--border-color)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
 
           <ThemeLogo
             className="h-15 sm:h-25 md:h-30 lg:h-20 xl:h-30 w-auto"
           />
 
-
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
-            <Link href="auth/login" className="hidden sm:block text-sm sm:text-base font-medium transition-colors" style={{ color: 'var(--text-muted)' }}>
+            <Link href="auth/login" className="hidden sm:block text-sm sm:text-base font-medium transition-colors text-(--text-muted)">
               Login
             </Link>
             <Link href="auth/register" className="bg-(--btn-bg) text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
@@ -38,11 +37,11 @@ export default function Home() {
 
         {/* Left */}
         <div className="text-center lg:text-left">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight" style={{ color: 'var(--text-primary)' }}>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-(--text-primary)">
             Social,<br />Simplified.
           </h1>
 
-          <p className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl max-w-xl mx-auto lg:mx-0" style={{ color: 'var(--text-muted)' }}>
+          <p className="mt-6 sm:mt-8 text-base sm:text-lg md:text-xl max-w-xl mx-auto lg:mx-0 text-(--text-muted)">
             Connect without the noise. Experience a premium social media
             platform designed for people, not algorithms.
           </p>
@@ -53,7 +52,7 @@ export default function Home() {
             </Link>
           </div>
 
-          <p className="mt-4 sm:mt-6 text-sm sm:text-base flex justify-center lg:justify-start items-center gap-3" style={{ color: 'var(--text-soft)' }}>
+          <p className="mt-4 sm:mt-6 text-sm sm:text-base flex justify-center lg:justify-start items-center gap-3 text-(--text-soft)">
             <span className="text-green-500 text-base sm:text-lg">✔</span>
             No money required
           </p>
@@ -65,25 +64,24 @@ export default function Home() {
             <NextImage
               src={appPreviewImg}
               alt="App Preview"
-              className="rounded-2xl 
-                         w-55 sm:w-70 md:w-85 lg:w-105"
+              className="rounded-2xl w-55 sm:w-70 md:w-85 lg:w-105"
             />
           </div>
 
           {/* Floating Like */}
-          <div className="hidden md:flex absolute bottom-6 left-6 px-5 py-3 rounded-2xl shadow-xl items-center gap-3 transition-colors" style={{ backgroundColor: 'var(--card-bg)' }}>
+          <div className="hidden md:flex absolute bottom-6 left-6 px-5 py-3 rounded-2xl shadow-xl items-center gap-3 transition-colors bg-(--card-bg)">
             <span className="text-red-500 text-lg">❤️</span>
             <div>
-              <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>New Like</p>
-              <p className="text-xs" style={{ color: 'var(--text-soft)' }}>Just now</p>
+              <p className="text-sm font-semibold text-(--text-primary)">New Like</p>
+              <p className="text-xs text-(--text-soft)">Just now</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ================= SOCIAL PROOF ================= */}
-      <section className="py-16 sm:py-24 text-center px-4 transition-colors" style={{ backgroundColor: 'var(--section-bg)' }}>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>
+      <section className="py-16 sm:py-24 text-center px-4 transition-colors bg-(--section-bg)">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-(--text-primary)">
           Join millions of users connecting freely.
         </h2>
 
@@ -95,16 +93,15 @@ export default function Home() {
               alt={`User avatar ${i}`}
               width={56}
               height={56}
-              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 transition-colors"
-              style={{ borderColor: 'var(--section-bg)' }}
+              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-4 transition-colors border-(--section-bg)"
             />
           ))}
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-semibold transition-colors" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--text-primary)' }}>
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-sm sm:text-base font-semibold transition-colors bg-(--card-bg) text-(--text-primary)">
             +2M
           </div>
         </div>
 
-        <p className="mt-4 sm:mt-6 text-sm sm:text-base max-w-xl mx-auto" style={{ color: 'var(--text-soft)' }}>
+        <p className="mt-4 sm:mt-6 text-sm sm:text-base max-w-xl mx-auto text-(--text-soft)">
           Our community is growing fast. Be part of a social network that respects
           your time and privacy.
         </p>
@@ -116,33 +113,33 @@ export default function Home() {
           Features
         </span>
 
-        <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-extrabold" style={{ color: 'var(--text-primary)' }}>
+        <h2 className="mt-3 text-3xl sm:text-4xl md:text-5xl font-extrabold text-(--text-primary)">
           Why choose Chatza?
         </h2>
 
-        <p className="mt-4 sm:mt-6 text-base sm:text-lg max-w-2xl" style={{ color: 'var(--text-muted)' }}>
+        <p className="mt-4 sm:mt-6 text-base sm:text-lg max-w-2xl text-(--text-muted)">
           We prioritize your experience with features that matter,
           bringing back the joy of social connection.
         </p>
 
         <div className="mt-12 sm:mt-20 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10">
-          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
-            <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>Chronological Feeds</h3>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
+          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition bg-(--card-bg) border-(--border-color)">
+            <h3 className="font-bold text-lg sm:text-xl text-(--text-primary)">Chronological Feeds</h3>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-(--text-muted)">
               See posts in the order they happened. No hidden algorithms.
             </p>
           </div>
 
-          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
-            <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>Premium Privacy</h3>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
+          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition bg-(--card-bg) border-(--border-color)">
+            <h3 className="font-bold text-lg sm:text-xl text-(--text-primary)">Premium Privacy</h3>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-(--text-muted)">
               Your data belongs to you with end-to-end encryption.
             </p>
           </div>
 
-          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
-            <h3 className="font-bold text-lg sm:text-xl" style={{ color: 'var(--text-primary)' }}>High-Res Media</h3>
-            <p className="mt-3 sm:mt-4 text-sm sm:text-base" style={{ color: 'var(--text-muted)' }}>
+          <div className="p-8 sm:p-10 rounded-2xl border hover:shadow-2xl transition bg-(--card-bg) border-(--border-color)">
+            <h3 className="font-bold text-lg sm:text-xl text-(--text-primary)">High-Res Media</h3>
+            <p className="mt-3 sm:mt-4 text-sm sm:text-base text-(--text-muted)">
               Upload 4K photos and videos for free.
             </p>
           </div>
@@ -151,13 +148,13 @@ export default function Home() {
 
       {/* ================= CTA ================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
-        <div className="rounded-[40px] py-16 sm:py-24 text-center px-6 sm:px-20 transition-colors" style={{ backgroundColor: 'var(--cta-bg)', color: 'var(--cta-text)' }}>
+        <div className="rounded-[40px] py-16 sm:py-24 text-center px-6 sm:px-20 transition-colors bg-(--cta-bg) text-(--cta-text)">
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">
             Ready to start the conversation?
           </h2>
 
-          <p className="mt-4 sm:mt-6 text-base sm:text-lg" style={{ color: 'var(--text-muted)' }}>
+          <p className="mt-4 sm:mt-6 text-base sm:text-lg text-(--text-muted)">
             Join the fastest growing social platform today.
           </p>
 
@@ -170,7 +167,7 @@ export default function Home() {
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="border-t transition-colors" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border-color)' }}>
+      <footer className="border-t transition-colors bg-(--bg-primary) border-(--border-color)">
         <div className="max-w-7xl mx-auto px-6 py-14">
 
           {/* Top Section */}
@@ -181,7 +178,7 @@ export default function Home() {
               <div className="flex items-center gap-2 font-bold text-lg">
                 <ThemeLogo className="h-20 sm:h-25 md:h-30 lg:h-35 xl:h-35 w-auto" />
               </div>
-              <p className="mt-4 text-sm leading-relaxed" style={{ color: 'var(--text-soft)' }}>
+              <p className="mt-4 text-sm leading-relaxed text-(--text-soft)">
                 A modern social platform built for authentic connections.
               </p>
             </div>
@@ -190,8 +187,8 @@ export default function Home() {
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 text-sm">
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Product</h4>
-                <ul className="space-y-3" style={{ color: 'var(--text-soft)' }}>
+                <h4 className="font-semibold mb-4 text-(--text-primary)">Product</h4>
+                <ul className="space-y-3 text-(--text-soft)">
                   <li>Features</li>
                   <li>Mobile App</li>
                   <li>Security</li>
@@ -199,8 +196,8 @@ export default function Home() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Company</h4>
-                <ul className="space-y-3" style={{ color: 'var(--text-soft)' }}>
+                <h4 className="font-semibold mb-4 text-(--text-primary)">Company</h4>
+                <ul className="space-y-3 text-(--text-soft)">
                   <li>About Us</li>
                   <li>Careers</li>
                   <li>Blog</li>
@@ -208,8 +205,8 @@ export default function Home() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Legal</h4>
-                <ul className="space-y-3" style={{ color: 'var(--text-soft)' }}>
+                <h4 className="font-semibold mb-4 text-(--text-primary)">Legal</h4>
+                <ul className="space-y-3 text-(--text-soft)">
                   <li>
                     <Link href="/leagle/privacy-policy">Privacy Policy</Link>
                   </li>
@@ -217,7 +214,7 @@ export default function Home() {
                     <Link href="/leagle/terms">Terms of Service</Link>
                   </li>
                   <li>
-                    <Link href="/leagle/cookie" >Cookie Policy</Link>
+                    <Link href="/leagle/cookie">Cookie Policy</Link>
                   </li>
                   <li>
                     <Link className="hover:underline" href="/leagle/help">
@@ -231,24 +228,23 @@ export default function Home() {
           </div>
 
           {/* Divider */}
-          <div className="border-t mt-14 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4" style={{ borderColor: 'var(--border-color)' }}>
+          <div className="border-t mt-14 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-(--border-color)">
 
             {/* Copyright */}
-            <p className="text-xs" style={{ color: 'var(--text-soft)' }}>
+            <p className="text-xs text-(--text-soft)">
               © {new Date().getFullYear()} Chatza Inc. All rights reserved.
             </p>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-4 transition-colors" style={{ color: 'var(--text-soft)' }}>
-              <a href="https://www.instagram.com/krxsh.in/" className="text-lg cursor-pointer transition" style={{ color: 'inherit' }}><IoLogoInstagram /></a>
-              <a href="kedin.com/in/krish-variya/" className="text-lg cursor-pointer transition" style={{ color: 'inherit' }}><FaLinkedin /></a>
-              <a href="https://x.com/variya_krish_" className="text-lg cursor-pointer transition" style={{ color: 'inherit' }}><FaXTwitter /></a>
+            <div className="flex items-center gap-4 transition-colors text-(--text-soft)">
+              <a href="https://www.instagram.com/krxsh.in/" className="text-lg cursor-pointer transition hover:text-(--brand)"><IoLogoInstagram /></a>
+              <a href="https://www.linkedin.com/in/krish-variya/" className="text-lg cursor-pointer transition hover:text-(--brand)"><FaLinkedin /></a>
+              <a href="https://x.com/variya_krish_" className="text-lg cursor-pointer transition hover:text-(--brand)"><FaXTwitter /></a>
             </div>
 
           </div>
         </div>
       </footer>
-
 
     </main>
   );

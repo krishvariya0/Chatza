@@ -1,10 +1,11 @@
 "use client";
 import { ThemeLogo } from "@/components/layout/ThemeLogo";
+import { useUser } from "@/contexts/UserContext";
 import { showToast } from "@/lib/toast";
 import { ArrowRight, AtSign, Eye, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoReturnDownBack } from "react-icons/io5";
 
@@ -20,15 +21,34 @@ export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
-
-
-
+    const { user, loading: userLoading } = useUser();
 
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<RegisterFormData>();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (!userLoading && user) {
+            router.push("/home");
+        }
+    }, [user, userLoading, router]);
+
+    // Show loading while checking auth status
+    if (userLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-(--bg-primary)">
+                <div className="text-(--text-muted)">Loading...</div>
+            </div>
+        );
+    }
+
+    // Don't render register form if user is logged in
+    if (user) {
+        return null;
+    }
 
     const onSubmit = async (data: RegisterFormData) => {
         setLoading(true);
@@ -48,12 +68,8 @@ export default function RegisterPage() {
 
             showToast.success("Account created successfully 🎉");
 
-            // Check if onboarding is completed
-            if (result.user.onboardingCompleted) {
-                router.push(`/profile/${result.user.username}`);
-            } else {
-                router.push("/onboarding");
-            }
+            // Redirect to onboarding
+            window.location.href = "/onboarding";
         } catch {
             showToast.error("Server error");
         } finally {

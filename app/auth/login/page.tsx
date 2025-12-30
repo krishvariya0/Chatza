@@ -1,11 +1,12 @@
 "use client";
 
 import { ThemeLogo } from "@/components/layout/ThemeLogo";
+import { useUser } from "@/contexts/UserContext";
 import { showToast } from "@/lib/toast";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 type LoginFormData = {
@@ -17,12 +18,34 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const { user, loading: userLoading } = useUser();
 
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<LoginFormData>();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (!userLoading && user) {
+            router.push("/home");
+        }
+    }, [user, userLoading, router]);
+
+    // Show loading while checking auth status
+    if (userLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-(--bg-primary)">
+                <div className="text-(--text-muted)">Loading...</div>
+            </div>
+        );
+    }
+
+    // Don't render login form if user is logged in
+    if (user) {
+        return null;
+    }
 
     const onSubmit = async (data: LoginFormData) => {
         setLoading(true);
@@ -42,12 +65,8 @@ export default function LoginPage() {
 
             showToast.success("Welcome back 🎉");
 
-            // Check if onboarding is completed
-            if (result.user.onboardingCompleted) {
-                router.push(`/profile/${result.user.username}`);
-            } else {
-                router.push("/onboarding");
-            }
+            // Refresh user context
+            window.location.href = "/home";
         } catch {
             showToast.error("Server error");
         } finally {

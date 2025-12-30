@@ -3,104 +3,16 @@
 /* =========================
    Imports
 ========================= */
-import { Hash, Heart, Home, MessageCircle, PenSquare, Share2, Shield, Star, TrendingUp, User } from "lucide-react";
-import Link from "next/link";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { Heart, MessageCircle, Share2 } from "lucide-react";
 
 /* =========================
    MAIN FEED PAGE
 ========================= */
 export default function FeedPage() {
     return (
-        <div className="min-h-screen bg-(--bg-primary) flex">
-            {/* Left Sidebar */}
-            <aside className="hidden lg:block w-64 border-r border-(--border-color) p-6 sticky top-0 h-screen overflow-y-auto">
-                <div className="mb-8">
-                    <Link href="/feed" className="flex items-center gap-2 text-2xl font-bold text-(--brand)">
-                        <div className="w-8 h-8 bg-(--brand) rounded-lg flex items-center justify-center text-white">
-                            C
-                        </div>
-                        Chatza
-                    </Link>
-                </div>
-
-                <nav className="space-y-2 mb-8">
-                    <Link
-                        href="/feed"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg bg-(--bg-card) text-(--brand) transition"
-                    >
-                        <Home size={20} />
-                        <span className="font-medium">Feed</span>
-                    </Link>
-                    <Link
-                        href="/top"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                    >
-                        <TrendingUp size={20} />
-                        <span className="font-medium">Top</span>
-                    </Link>
-                    <Link
-                        href="/auth"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                    >
-                        <Shield size={20} />
-                        <span className="font-medium">Auth</span>
-                    </Link>
-                    <Link
-                        href="/teed"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                    >
-                        <Hash size={20} />
-                        <span className="font-medium">Teed</span>
-                    </Link>
-                    <Link
-                        href="/profile"
-                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                    >
-                        <User size={20} />
-                        <span className="font-medium">Profile</span>
-                    </Link>
-                </nav>
-
-                <div className="mb-8">
-                    <h3 className="text-xs font-semibold text-(--text-muted) uppercase mb-3 px-4">
-                        FAVORITES
-                    </h3>
-                    <div className="space-y-2">
-                        <Link
-                            href="/favorites/design"
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                        >
-                            <Star size={16} className="text-yellow-500" />
-                            <span className="text-sm">Design Inspiration</span>
-                        </Link>
-                        <Link
-                            href="/favorites/tech"
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                        >
-                            <Star size={16} className="text-blue-500" />
-                            <span className="text-sm">Tech News</span>
-                        </Link>
-                        <Link
-                            href="/favorites/art"
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg text-(--text-muted) hover:bg-(--bg-card) transition"
-                        >
-                            <Star size={16} className="text-purple-500" />
-                            <span className="text-sm">Digital Art</span>
-                        </Link>
-                    </div>
-                </div>
-
-                <button
-                    type="button"
-                    className="w-full bg-(--brand) text-white font-semibold py-3 rounded-xl shadow-lg hover:opacity-90 transition flex items-center justify-center gap-2"
-                >
-                    <PenSquare size={20} />
-                    Create Post
-                </button>
-            </aside>
-
-            {/* Main Content */}
-            <main className="flex-1 max-w-2xl mx-auto px-4 py-10">
+        <AppLayout>
+            <div className="max-w-3xl mx-auto px-4 py-10">
 
                 {/* =========================
                FEED HEADER
@@ -142,8 +54,8 @@ export default function FeedPage() {
 
                 </section>
 
-            </main>
-        </div >
+            </div>
+        </AppLayout>
     );
 }
 
