@@ -1,0 +1,34 @@
+# Chatza - Robots.txt
+# https://chatza-one.vercel.app/robots.txt
+
+User-agent: *
+Allow: /
+Allow: /auth/login
+Allow: /auth/register
+Allow: /explore
+Allow: /leagle/*
+
+# Disallow private/authenticated pages
+Disallow: /api/
+Disallow: /chat
+Disallow: /feed
+Disallow: /home
+Disallow: /settings
+Disallow: /profile/*/edit
+Disallow: /onboarding
+
+# Disallow search result pages to avoid duplicate content
+Disallow: /find?*
+
+# Allow specific bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Sitemap location
+Sitemap: https://chatza-one.vercel.app/sitemap.xml
