@@ -29,14 +29,24 @@ export async function GET(req: NextRequest) {
                 .populate("searchedUserId", "username fullName profilePicture bio")
                 .lean();
 
+            interface PopulatedSearchHistory {
+                searchedUserId: {
+                    _id: { toString: () => string };
+                    username: string;
+                    fullName: string;
+                    profilePicture: string | null;
+                    bio: string;
+                } | null;
+            }
+
             const users = searchHistory
-                .filter((item: any) => item.searchedUserId) // Filter out deleted users
-                .map((item: any) => ({
-                    id: item.searchedUserId._id.toString(),
-                    username: item.searchedUserId.username,
-                    fullName: item.searchedUserId.fullName,
-                    profilePicture: item.searchedUserId.profilePicture,
-                    bio: item.searchedUserId.bio,
+                .filter((item: PopulatedSearchHistory) => item.searchedUserId) // Filter out deleted users
+                .map((item: PopulatedSearchHistory) => ({
+                    id: item.searchedUserId!._id.toString(),
+                    username: item.searchedUserId!.username,
+                    fullName: item.searchedUserId!.fullName,
+                    profilePicture: item.searchedUserId!.profilePicture,
+                    bio: item.searchedUserId!.bio,
                 }));
 
             return NextResponse.json({
@@ -64,9 +74,17 @@ export async function GET(req: NextRequest) {
             .limit(20)
             .lean();
 
+        interface UserDocument {
+            _id: { toString: () => string };
+            username: string;
+            fullName: string;
+            profilePicture: string | null;
+            bio: string;
+        }
+
         return NextResponse.json({
             success: true,
-            users: users.map((user: any) => ({
+            users: users.map((user: UserDocument) => ({
                 id: user._id.toString(),
                 username: user.username,
                 fullName: user.fullName,

@@ -252,7 +252,7 @@ export default function FindPage() {
                                 </div>
                             ) : (
                                 <div className="text-center text-sm sm:text-base text-(--text-muted) mt-8 sm:mt-12 px-4">
-                                    <p>No users found for "{query}"</p>
+                                    <p>No users found for &quot;{query}&quot;</p>
                                 </div>
                             )}
                         </div>
