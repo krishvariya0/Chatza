@@ -53,7 +53,7 @@ export default function LoginPage() {
             const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data), // { identifier, password }
+                body: JSON.stringify(data),
             });
 
             const result = await res.json();
@@ -65,8 +65,12 @@ export default function LoginPage() {
 
             showToast.success("Welcome back 🎉");
 
-            // Refresh user context
-            window.location.href = "/home";
+            // Check for redirect parameter from middleware
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectTo = urlParams.get('redirect') || '/home';
+
+            // Full page reload to ensure fresh user data
+            window.location.replace(redirectTo);
         } catch {
             showToast.error("Server error");
         } finally {

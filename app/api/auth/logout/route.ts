@@ -11,13 +11,23 @@ export async function POST() {
             await deleteSession(token);
         }
 
-        // Clear the session cookie
-        cookieStore.delete("session");
-
-        return NextResponse.json(
+        // Create response
+        const response = NextResponse.json(
             { message: "Logged out successfully" },
             { status: 200 }
         );
+
+        // Clear the session cookie properly
+        response.cookies.set("session", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0
+        });
+
+        return response;
     } catch (error) {
         console.error("Logout error:", error);
         return NextResponse.json(

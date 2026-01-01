@@ -118,14 +118,18 @@ export default function RootLayout({
           <UserProvider>{children}</UserProvider>
         </ThemeProvider>
 
-        {/* Toast container — NO COLORS HERE */}
+        {/* Toast container - Bottom right with beautiful styling */}
         <ToastContainer
-          position="top-center"
-          autoClose={3000}
+          position="bottom-right"
+          autoClose={4000}
+          hideProgressBar={false}
           newestOnTop
           closeOnClick
-          pauseOnHover
+          rtl={false}
+          pauseOnFocusLoss
           draggable
+          pauseOnHover
+          limit={3}
         />
       </body>
     </html>

@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 
 interface UserProfile {
     username: string;
@@ -19,14 +18,18 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-    const router = useRouter();
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchUser = async () => {
+    const fetchUser = useCallback(async () => {
         try {
             const res = await fetch("/api/auth/me", {
                 credentials: "include",
+                cache: "no-store",
+                headers: {
+                    "Cache-Control": "no-cache",
+                    "Pragma": "no-cache"
+                }
             });
             if (!res.ok) {
                 setUser(null);
@@ -40,29 +43,31 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchUser();
-    }, []);
+    }, [fetchUser]);
 
-    const refreshUser = async () => {
+    const refreshUser = useCallback(async () => {
         setLoading(true);
+        setUser(null);
         await fetchUser();
-    };
+    }, [fetchUser]);
 
-    const logout = async () => {
+    const logout = useCallback(async () => {
         try {
             await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });
             setUser(null);
-            router.push("/auth/login");
+            // Full page reload to landing page
+            window.location.href = "/";
         } catch (error) {
             console.error("Error logging out:", error);
         }
-    };
+    }, []);
 
     return (
         <UserContext.Provider value={{ user, loading, refreshUser, logout }}>

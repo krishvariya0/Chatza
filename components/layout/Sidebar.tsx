@@ -3,6 +3,7 @@
 import { ThemeLogo } from "@/components/layout/ThemeLogo";
 import { useUser } from "@/contexts/UserContext";
 import {
+    ArrowLeftRight,
     Bell,
     Compass,
     Film,
@@ -11,8 +12,7 @@ import {
     MessageSquare,
     PlusCircle,
     Search,
-    Settings,
-    User as UserIcon,
+    User as UserIcon
 } from "lucide-react";
 import NextImage from "next/image";
 import Link from "next/link";
@@ -138,11 +138,11 @@ export function Sidebar({ currentUsername, userFullName, userProfilePicture }: S
                                     </div>
                                 </Link>
                                 <Link
-                                    href="/profile/edit"
+                                    href="#"
                                     className="p-2 hover:bg-(--bg-primary) rounded-lg transition shrink-0"
                                     title="Settings"
                                 >
-                                    <Settings size={18} className="text-(--text-muted)" />
+                                    <ArrowLeftRight size={18} className="text-(--text-muted)" />
                                 </Link>
                             </div>
                             <button
@@ -167,7 +167,7 @@ export function Sidebar({ currentUsername, userFullName, userProfilePicture }: S
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition min-w-[60px] ${active
+                                className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition min-w-15 ${active
                                     ? "text-(--brand)"
                                     : "text-(--text-muted)"
                                     }`}
@@ -180,14 +180,14 @@ export function Sidebar({ currentUsername, userFullName, userProfilePicture }: S
                     {currentUsername && (
                         <Link
                             href={`/profile/${currentUsername}`}
-                            className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition min-w-[60px] ${pathname?.includes(`/profile/${currentUsername}`)
-                                    ? "text-(--brand)"
-                                    : "text-(--text-muted)"
+                            className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition min-w-15 ${pathname?.includes(`/profile/${currentUsername}`)
+                                ? "text-(--brand)"
+                                : "text-(--text-muted)"
                                 }`}
                         >
                             <div className={`w-6 h-6 rounded-full overflow-hidden flex items-center justify-center relative ${pathname?.includes(`/profile/${currentUsername}`)
-                                    ? "ring-2 ring-(--brand)"
-                                    : ""
+                                ? "ring-2 ring-(--brand)"
+                                : ""
                                 }`}>
                                 {userProfilePicture ? (
                                     <NextImage

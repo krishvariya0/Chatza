@@ -1,6 +1,6 @@
 "use client";
 
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { ThemeLogo } from "@/components/layout/ThemeLogo";
 import { useUser } from "@/contexts/UserContext";
@@ -20,7 +20,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     const isHomePage = pathname === '/home';
 
     return (
-        <ProtectedRoute>
+        <AuthGuard>
             <div className="min-h-screen bg-(--bg-primary) flex flex-col lg:flex-row">
                 {/* Mobile Header - Only visible on home page and small screens */}
                 {isHomePage && (
@@ -51,8 +51,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </header>
                 )}
 
-                {/* Mobile Slide-out Menu - Removed */}
-
                 <Sidebar
                     currentUsername={user?.username}
                     userFullName={user?.fullName}
@@ -60,6 +58,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                 />
                 <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">{children}</main>
             </div>
-        </ProtectedRoute>
+        </AuthGuard>
     );
 }

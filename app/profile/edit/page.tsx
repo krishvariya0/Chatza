@@ -1,6 +1,7 @@
 "use client";
 
 import { Sidebar } from "@/components/layout/Sidebar";
+import { EditProfileSkeleton } from "@/components/skeleton/EditProfileSkeleton";
 import { showToast } from "@/lib/toast";
 import { ArrowLeft, Globe, MapPin, User } from "lucide-react";
 import NextImage from "next/image";
@@ -156,11 +157,7 @@ export default function EditProfilePage() {
     };
 
     if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-(--bg-primary)">
-                <div className="text-(--text-muted)">Loading...</div>
-            </div>
-        );
+        return <EditProfileSkeleton />;
     }
 
     return (
