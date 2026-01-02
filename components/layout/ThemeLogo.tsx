@@ -3,6 +3,7 @@
 import chatzaLightLogo from "@/assets/icons/chatza.png";
 import chatzaDarkLogo from "@/assets/icons/dark-thema.png";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useTheme } from '../ThemeProvider';
 
 interface ThemeLogoProps {
@@ -11,9 +12,16 @@ interface ThemeLogoProps {
 
 export function ThemeLogo({ className }: ThemeLogoProps) {
     const { theme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
-    // Show default logo during SSR/hydration to prevent mismatch
-    const logoSrc = theme === 'dark' ? chatzaDarkLogo : chatzaLightLogo;
+    // Prevent hydration mismatch by only rendering theme-specific content after mount
+    useEffect(() => {
+        // Use a microtask to avoid synchronous setState in effect
+        Promise.resolve().then(() => setMounted(true));
+    }, []);
+
+    // Show light logo during SSR and initial render to prevent mismatch
+    const logoSrc = mounted && theme === 'dark' ? chatzaDarkLogo : chatzaLightLogo;
 
     return (
         <Image
@@ -22,6 +30,7 @@ export function ThemeLogo({ className }: ThemeLogoProps) {
             className={className}
             width={120}
             height={80}
+            priority
         />
     );
 }

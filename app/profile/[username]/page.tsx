@@ -1,5 +1,6 @@
 "use client";
 
+import { FollowButton } from "@/components/FollowButton";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ProfileSkeleton } from "@/components/skeleton/ProfileSkeleton";
 import { useUser } from "@/contexts/UserContext";
@@ -15,6 +16,7 @@ import {
     User as UserIcon
 } from "lucide-react";
 import NextImage from "next/image";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -28,6 +30,15 @@ interface UserProfile {
     location: string;
     website: string;
     joinedDate: string;
+    followersCount: number;
+    followingCount: number;
+}
+
+interface MutualFollower {
+    _id: string;
+    fullName: string;
+    username: string;
+    profilePicture: string | null;
 }
 
 export default function ProfilePage() {
@@ -41,6 +52,12 @@ export default function ProfilePage() {
     const [profileUser, setProfileUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"posts" | "likes" | "saved">("posts");
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [isFollower, setIsFollower] = useState(false);
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
+    const [mutualFollowers, setMutualFollowers] = useState<MutualFollower[]>([]);
+    const [mutualCount, setMutualCount] = useState(0);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -49,7 +66,7 @@ export default function ProfilePage() {
             // Always fetch full profile data from API
             try {
                 const userRes = await fetch(`/api/users/${username}`);
-                const userData = await userRes.json();
+                const userData: { success: boolean; user: UserProfile; message?: string } = await userRes.json();
 
                 if (!userRes.ok) {
                     showToast.error(userData.message || "User not found");
@@ -57,8 +74,29 @@ export default function ProfilePage() {
                     return;
                 }
 
-                console.log("Profile data received:", userData.user);
                 setProfileUser(userData.user);
+                setFollowersCount(userData.user.followersCount || 0);
+                setFollowingCount(userData.user.followingCount || 0);
+
+                // Fetch follow status if not own profile
+                if (userData.user.username !== currentUser?.username) {
+                    const statusRes = await fetch(`/api/users/${username}/follow-status`);
+                    const statusData = await statusRes.json();
+
+                    if (statusRes.ok && statusData.success) {
+                        setIsFollowing(statusData.isFollowing);
+                        setIsFollower(statusData.isFollower);
+                    }
+
+                    // Fetch mutual followers
+                    const mutualRes = await fetch(`/api/users/${username}/mutual-followers`);
+                    const mutualData = await mutualRes.json();
+
+                    if (mutualRes.ok && mutualData.success) {
+                        setMutualFollowers(mutualData.mutualFollowers);
+                        setMutualCount(mutualData.totalCount);
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching profile:", error);
                 showToast.error("Failed to load profile");
@@ -69,6 +107,11 @@ export default function ProfilePage() {
 
         fetchProfile();
     }, [username, currentUser, router]);
+
+    const handleFollowChange = (newIsFollowing: boolean) => {
+        setIsFollowing(newIsFollowing);
+        setFollowersCount(prev => newIsFollowing ? prev + 1 : prev - 1);
+    };
 
     const isOwnProfile = currentUser?.username === username;
 
@@ -140,21 +183,21 @@ export default function ProfilePage() {
                                         <h1 className="text-2xl sm:text-3xl font-bold text-(--text-primary)">
                                             {profileUser.fullName}
                                         </h1>
-                                        <BadgeCheck size={20} className="text-blue-500 shrink-0" />
+                                        <BadgeCheck size={20} className="text-info shrink-0" />
                                     </div>
                                     <p className="text-base sm:text-lg text-(--text-muted) font-medium mb-4">
                                         @{profileUser.username}
                                     </p>
                                 </div>
-                                {isOwnProfile && (
-                                    <button
-                                        type="button"
-                                        onClick={() => router.push("/profile/edit")}
-                                        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-(--border-color) text-sm font-medium text-(--text-primary) hover:bg-(--bg-primary) transition shrink-0 mx-auto sm:mx-0"
-                                    >
-                                        <Settings size={16} />
-                                        Edit Profile
-                                    </button>
+                                {profileUser.id && (
+                                    <FollowButton
+                                        targetUserId={profileUser.id}
+                                        initialIsFollowing={isFollowing}
+                                        initialIsFollower={isFollower}
+                                        isCurrentUser={isOwnProfile}
+                                        onFollowChange={handleFollowChange}
+                                        size="md"
+                                    />
                                 )}
                             </div>
 
@@ -205,18 +248,66 @@ export default function ProfilePage() {
 
                             <div className="flex flex-wrap gap-6 justify-center sm:justify-start">
                                 <div>
-                                    <span className="text-xl font-bold text-(--text-primary)">142</span>
+                                    <span className="text-xl font-bold text-(--text-primary)">0</span>
                                     <span className="text-sm text-(--text-muted) ml-1">POSTS</span>
                                 </div>
-                                <div>
-                                    <span className="text-xl font-bold text-(--text-primary)">12.5k</span>
+                                <Link
+                                    href={`/profile/${profileUser.username}/followers`}
+                                    className="hover:opacity-70 transition cursor-pointer"
+                                >
+                                    <span className="text-xl font-bold text-(--text-primary)">{followersCount}</span>
                                     <span className="text-sm text-(--text-muted) ml-1">FOLLOWERS</span>
-                                </div>
-                                <div>
-                                    <span className="text-xl font-bold text-(--text-primary)">450</span>
+                                </Link>
+                                <Link
+                                    href={`/profile/${profileUser.username}/following`}
+                                    className="hover:opacity-70 transition cursor-pointer"
+                                >
+                                    <span className="text-xl font-bold text-(--text-primary)">{followingCount}</span>
                                     <span className="text-sm text-(--text-muted) ml-1">FOLLOWING</span>
-                                </div>
+                                </Link>
                             </div>
+
+                            {/* Mutual Followers Section */}
+                            {!isOwnProfile && mutualFollowers.length > 0 && (
+                                <div className="mt-4 pt-4 border-t border-(--border-color)">
+                                    <Link
+                                        href={`/profile/${profileUser.username}/followers`}
+                                        className="flex items-center gap-2 text-sm text-(--text-muted) hover:text-(--text-primary) transition"
+                                    >
+                                        <div className="flex -space-x-2">
+                                            {mutualFollowers.slice(0, 3).map((follower) => (
+                                                <div
+                                                    key={follower._id}
+                                                    className="w-6 h-6 rounded-full bg-(--border-color) overflow-hidden border-2 border-(--bg-card) flex items-center justify-center"
+                                                >
+                                                    {follower.profilePicture ? (
+                                                        <NextImage
+                                                            src={follower.profilePicture}
+                                                            alt={follower.fullName}
+                                                            width={24}
+                                                            height={24}
+                                                            className="object-cover"
+                                                        />
+                                                    ) : (
+                                                        <UserIcon size={12} className="text-(--text-soft)" />
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <span>
+                                            Followed by{" "}
+                                            <span className="font-semibold">
+                                                {mutualFollowers[0]?.username}
+                                            </span>
+                                            {mutualCount > 1 && (
+                                                <span>
+                                                    {" "}+ {mutualCount - 1} other{mutualCount > 2 ? "s" : ""} you follow
+                                                </span>
+                                            )}
+                                        </span>
+                                    </Link>
+                                </div>
+                            )}
 
                             <div className="border-t border-(--border-color) pt-6 mt-6">
                                 <div className="flex gap-8 mb-6 overflow-x-auto border-b border-(--border-color) px-4 sm:px-0">

@@ -1,4 +1,5 @@
 import { connectToDatabase } from "@/lib/mongoose";
+import Follow from "@/models/Follow";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -20,6 +21,12 @@ export async function GET(
             );
         }
 
+        // Get followers and following counts from Follow collection
+        const [followersCount, followingCount] = await Promise.all([
+            Follow.countDocuments({ following: user._id }),
+            Follow.countDocuments({ follower: user._id }),
+        ]);
+
         return NextResponse.json({
             success: true,
             user: {
@@ -32,6 +39,8 @@ export async function GET(
                 location: user.location,
                 website: user.website,
                 joinedDate: user.joinedDate,
+                followersCount,
+                followingCount,
             },
         });
     } catch (error) {

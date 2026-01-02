@@ -22,10 +22,10 @@ export default function Home() {
 
           <div className="flex items-center gap-3 sm:gap-4">
             <ThemeToggle />
-            <Link href="auth/login" className="hidden sm:block text-sm sm:text-base font-medium transition-colors text-(--text-muted)">
+            <Link href="auth/login" className="hidden sm:block text-sm sm:text-base font-medium transition-colors text-(--text-muted) hover:text-brand">
               Login
             </Link>
-            <Link href="auth/register" className="bg-(--btn-bg) text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-red-600 transition">
+            <Link href="auth/register" className="bg-(--btn-bg) text-white text-sm sm:text-base font-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:opacity-90 transition">
               Get Started
             </Link>
           </div>
@@ -208,16 +208,16 @@ export default function Home() {
                 <h4 className="font-semibold mb-4 text-(--text-primary)">Legal</h4>
                 <ul className="space-y-3 text-(--text-soft)">
                   <li>
-                    <Link href="/leagle/privacy-policy">Privacy Policy</Link>
+                    <Link href="/leagle/privacy-policy" className="hover:text-brand transition">Privacy Policy</Link>
                   </li>
                   <li>
-                    <Link href="/leagle/terms">Terms of Service</Link>
+                    <Link href="/leagle/terms" className="hover:text-brand transition">Terms of Service</Link>
                   </li>
                   <li>
-                    <Link href="/leagle/cookie">Cookie Policy</Link>
+                    <Link href="/leagle/cookie" className="hover:text-brand transition">Cookie Policy</Link>
                   </li>
                   <li>
-                    <Link className="hover:underline" href="/leagle/help">
+                    <Link className="hover:text-brand transition" href="/leagle/help">
                       Help
                     </Link>
                   </li>
@@ -237,9 +237,9 @@ export default function Home() {
 
             {/* Social Icons */}
             <div className="flex items-center gap-4 transition-colors text-(--text-soft)">
-              <a href="https://www.instagram.com/krxsh.in/" className="text-lg cursor-pointer transition hover:text-(--brand)"><IoLogoInstagram /></a>
-              <a href="https://www.linkedin.com/in/krish-variya/" className="text-lg cursor-pointer transition hover:text-(--brand)"><FaLinkedin /></a>
-              <a href="https://x.com/variya_krish_" className="text-lg cursor-pointer transition hover:text-(--brand)"><FaXTwitter /></a>
+              <a href="https://www.instagram.com/krxsh.in/" className="text-lg cursor-pointer transition hover:text-brand"><IoLogoInstagram /></a>
+              <a href="https://www.linkedin.com/in/krish-variya/" className="text-lg cursor-pointer transition hover:text-brand"><FaLinkedin /></a>
+              <a href="https://x.com/variya_krish_" className="text-lg cursor-pointer transition hover:text-brand"><FaXTwitter /></a>
             </div>
 
           </div>

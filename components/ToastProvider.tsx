@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { Bounce, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export function ToastProvider() {
@@ -30,7 +30,7 @@ export function ToastProvider() {
     return (
         <ToastContainer
             position="bottom-right"
-            autoClose={4000}
+            autoClose={3000}
             hideProgressBar={false}
             newestOnTop={true}
             closeOnClick={true}
@@ -38,10 +38,8 @@ export function ToastProvider() {
             pauseOnFocusLoss={false}
             draggable={true}
             pauseOnHover={true}
-            theme="colored"
             limit={3}
-            stacked={false}
-            containerId="main-toast-container"
+            transition={Bounce}
         />
     );
 }

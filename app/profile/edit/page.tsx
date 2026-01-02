@@ -231,7 +231,7 @@ export default function EditProfilePage() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-(--text-muted) mb-2">
-                                    Username <span className="text-red-500">*</span>
+                                    Username <span className="text-error">*</span>
                                 </label>
                                 <div className="relative">
                                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--text-soft)">
@@ -258,12 +258,12 @@ export default function EditProfilePage() {
                                             },
                                         })}
                                         placeholder="username"
-                                        className={`w-full pl-8 pr-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.username ? "border-red-500" : "border-(--border-color)"
+                                        className={`w-full pl-8 pr-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.username ? "border-error" : "border-(--border-color)"
                                             }`}
                                     />
                                 </div>
                                 {errors.username && (
-                                    <p className="text-xs text-red-500 mt-1">{errors.username.message}</p>
+                                    <p className="text-xs text-error mt-1">{errors.username.message}</p>
                                 )}
                                 {!errors.username && (
                                     <div className="text-xs text-(--text-soft) mt-1">
@@ -274,7 +274,7 @@ export default function EditProfilePage() {
 
                             <div>
                                 <label className="block text-sm font-semibold text-(--text-muted) mb-2">
-                                    Full Name <span className="text-red-500">*</span>
+                                    Full Name <span className="text-error">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -290,11 +290,11 @@ export default function EditProfilePage() {
                                         },
                                     })}
                                     placeholder="John Doe"
-                                    className={`w-full px-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.fullName ? "border-red-500" : "border-(--border-color)"
+                                    className={`w-full px-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.fullName ? "border-error" : "border-(--border-color)"
                                         }`}
                                 />
                                 {errors.fullName && (
-                                    <p className="text-xs text-red-500 mt-1">{errors.fullName.message}</p>
+                                    <p className="text-xs text-error mt-1">{errors.fullName.message}</p>
                                 )}
                             </div>
 
@@ -311,14 +311,14 @@ export default function EditProfilePage() {
                                     })}
                                     placeholder="Tell us about yourself..."
                                     rows={4}
-                                    className={`w-full px-4 py-3 rounded-xl bg-transparent border text-(--text-primary) resize-none focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.bio ? "border-red-500" : "border-(--border-color)"
+                                    className={`w-full px-4 py-3 rounded-xl bg-transparent border text-(--text-primary) resize-none focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.bio ? "border-error" : "border-(--border-color)"
                                         }`}
                                 />
                                 <div className="flex justify-between items-center mt-1">
                                     {errors.bio && (
-                                        <p className="text-xs text-red-500">{errors.bio.message}</p>
+                                        <p className="text-xs text-error">{errors.bio.message}</p>
                                     )}
-                                    <div className={`text-xs ml-auto ${bio.length > 160 ? "text-red-500" : "text-(--text-soft)"}`}>
+                                    <div className={`text-xs ml-auto ${bio.length > 160 ? "text-error" : "text-(--text-soft)"}`}>
                                         {bio.length}/160
                                     </div>
                                 </div>
@@ -342,12 +342,12 @@ export default function EditProfilePage() {
                                             },
                                         })}
                                         placeholder="San Francisco, CA"
-                                        className={`w-full pl-11 pr-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.location ? "border-red-500" : "border-(--border-color)"
+                                        className={`w-full pl-11 pr-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.location ? "border-error" : "border-(--border-color)"
                                             }`}
                                     />
                                 </div>
                                 {errors.location && (
-                                    <p className="text-xs text-red-500 mt-1">{errors.location.message}</p>
+                                    <p className="text-xs text-error mt-1">{errors.location.message}</p>
                                 )}
                             </div>
 
@@ -369,12 +369,12 @@ export default function EditProfilePage() {
                                             },
                                         })}
                                         placeholder="yourwebsite.com"
-                                        className={`w-full pl-11 pr-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.website ? "border-red-500" : "border-(--border-color)"
+                                        className={`w-full pl-11 pr-4 py-3 rounded-xl bg-transparent border text-(--text-primary) focus:outline-none focus:ring-2 focus:ring-(--brand) ${errors.website ? "border-error" : "border-(--border-color)"
                                             }`}
                                     />
                                 </div>
                                 {errors.website && (
-                                    <p className="text-xs text-red-500 mt-1">{errors.website.message}</p>
+                                    <p className="text-xs text-error mt-1">{errors.website.message}</p>
                                 )}
                             </div>
 
