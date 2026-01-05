@@ -1,14 +1,40 @@
 'use client';
 import NextImage from "next/image";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import appPreviewImg from "@/assets/images/landig-page-mobail.png";
 import { ThemeLogo } from "@/components/layout/ThemeLogo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useUser } from "@/contexts/UserContext";
 import { FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import { IoLogoInstagram } from "react-icons/io";
 
 export default function Home() {
+  const router = useRouter();
+  const { user, loading } = useUser();
+
+  // Redirect logged-in users to home page
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace("/home");
+    }
+  }, [user, loading, router]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-(--bg-primary)">
+        <div className="w-8 h-8 border-4 border-(--brand) border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render landing page if user is logged in (will redirect)
+  if (user) {
+    return null;
+  }
   return (
     <main className="overflow-x-hidden transition-colors duration-300 bg-(--bg-primary) text-(--text-primary)">
 

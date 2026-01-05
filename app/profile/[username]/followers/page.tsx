@@ -2,6 +2,7 @@
 
 import { FollowButton } from "@/components/FollowButton";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { MessageButton } from "@/components/MessageButton";
 import { showToast } from "@/lib/toast";
 import { ArrowLeft, User as UserIcon } from "lucide-react";
 import NextImage from "next/image";
@@ -136,14 +137,25 @@ export default function FollowersPage() {
                                     </div>
                                 </Link>
 
-                                <FollowButton
-                                    targetUserId={follower._id}
-                                    initialIsFollowing={follower.isFollowing}
-                                    initialIsFollower={follower.isFollower}
-                                    isCurrentUser={follower.isCurrentUser}
-                                    onFollowChange={(isFollowing) => handleFollowChange(follower._id, isFollowing)}
-                                    size="sm"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <FollowButton
+                                        targetUserId={follower._id}
+                                        initialIsFollowing={follower.isFollowing}
+                                        initialIsFollower={follower.isFollower}
+                                        isCurrentUser={follower.isCurrentUser}
+                                        onFollowChange={(isFollowing) => handleFollowChange(follower._id, isFollowing)}
+                                        size="sm"
+                                    />
+                                    {!follower.isCurrentUser && follower.isFollowing && follower.isFollower && (
+                                        <MessageButton
+                                            targetUserId={follower._id}
+                                            targetUsername={follower.username}
+                                            isMutualFollow={follower.isFollowing && follower.isFollower}
+                                            size="sm"
+                                            showText={false}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>

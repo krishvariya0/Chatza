@@ -2,6 +2,7 @@
 
 import { FollowButton } from "@/components/FollowButton";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { MessageButton } from "@/components/MessageButton";
 import { ProfileSkeleton } from "@/components/skeleton/ProfileSkeleton";
 import { useUser } from "@/contexts/UserContext";
 import { showToast } from "@/lib/toast";
@@ -11,6 +12,7 @@ import {
     Calendar,
     Globe,
     Heart,
+    LogOut,
     MapPin,
     Settings,
     User as UserIcon
@@ -58,6 +60,30 @@ export default function ProfilePage() {
     const [followingCount, setFollowingCount] = useState(0);
     const [mutualFollowers, setMutualFollowers] = useState<MutualFollower[]>([]);
     const [mutualCount, setMutualCount] = useState(0);
+    const [loggingOut, setLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        if (loggingOut) return;
+
+        setLoggingOut(true);
+        try {
+            const res = await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (res.ok) {
+                showToast.success('Logged out successfully');
+                router.push('/auth/login');
+            } else {
+                showToast.error('Failed to logout');
+            }
+        } catch {
+            showToast.error('Failed to logout');
+        } finally {
+            setLoggingOut(false);
+        }
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -67,6 +93,7 @@ export default function ProfilePage() {
             try {
                 const userRes = await fetch(`/api/users/${username}`);
                 const userData: { success: boolean; user: UserProfile; message?: string } = await userRes.json();
+                void userData; // Suppress unused variable warning
 
                 if (!userRes.ok) {
                     showToast.error(userData.message || "User not found");
@@ -190,14 +217,34 @@ export default function ProfilePage() {
                                     </p>
                                 </div>
                                 {profileUser.id && (
-                                    <FollowButton
-                                        targetUserId={profileUser.id}
-                                        initialIsFollowing={isFollowing}
-                                        initialIsFollower={isFollower}
-                                        isCurrentUser={isOwnProfile}
-                                        onFollowChange={handleFollowChange}
-                                        size="md"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <FollowButton
+                                            targetUserId={profileUser.id}
+                                            initialIsFollowing={isFollowing}
+                                            initialIsFollower={isFollower}
+                                            isCurrentUser={isOwnProfile}
+                                            onFollowChange={handleFollowChange}
+                                            size="md"
+                                        />
+                                        {!isOwnProfile && isFollowing && isFollower && (
+                                            <MessageButton
+                                                targetUserId={profileUser.id}
+                                                targetUsername={profileUser.username}
+                                                isMutualFollow={isFollowing && isFollower}
+                                                size="md"
+                                            />
+                                        )}
+                                        {isOwnProfile && (
+                                            <button
+                                                onClick={handleLogout}
+                                                disabled={loggingOut}
+                                                className="px-4 py-2 text-sm rounded-lg font-semibold transition-colors border-2 border-(--brand) text-(--brand) hover:bg-(--brand) hover:text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                <LogOut size={16} />
+                                                {loggingOut ? 'Logging out...' : 'Logout'}
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
                             </div>
 

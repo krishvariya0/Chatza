@@ -2,6 +2,7 @@
 
 import { FollowButton } from "@/components/FollowButton";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { MessageButton } from "@/components/MessageButton";
 import { showToast } from "@/lib/toast";
 import { ArrowLeft, User as UserIcon } from "lucide-react";
 import NextImage from "next/image";
@@ -136,14 +137,25 @@ export default function FollowingPage() {
                                     </div>
                                 </Link>
 
-                                <FollowButton
-                                    targetUserId={user._id}
-                                    initialIsFollowing={user.isFollowing}
-                                    initialIsFollower={user.isFollower}
-                                    isCurrentUser={user.isCurrentUser}
-                                    onFollowChange={(isFollowing) => handleFollowChange(user._id, isFollowing)}
-                                    size="sm"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <FollowButton
+                                        targetUserId={user._id}
+                                        initialIsFollowing={user.isFollowing}
+                                        initialIsFollower={user.isFollower}
+                                        isCurrentUser={user.isCurrentUser}
+                                        onFollowChange={(isFollowing) => handleFollowChange(user._id, isFollowing)}
+                                        size="sm"
+                                    />
+                                    {!user.isCurrentUser && user.isFollowing && user.isFollower && (
+                                        <MessageButton
+                                            targetUserId={user._id}
+                                            targetUsername={user.username}
+                                            isMutualFollow={user.isFollowing && user.isFollower}
+                                            size="sm"
+                                            showText={false}
+                                        />
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
