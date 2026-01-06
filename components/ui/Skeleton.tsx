@@ -84,21 +84,21 @@ export function ChatMessagesSkeleton() {
     );
 }
 
-export function ChatWindowHeaderSkeleton() {
-    return (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-(--border-color)">
-            <div className="flex items-center gap-3">
-                <Skeleton className="w-10 h-10 rounded-full" />
-                <div className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-20" />
-                </div>
-            </div>
-            <div className="flex items-center gap-2">
-                <Skeleton className="w-8 h-8 rounded-full" />
-                <Skeleton className="w-8 h-8 rounded-full" />
-                <Skeleton className="w-8 h-8 rounded-full" />
-            </div>
-        </div>
-    );
-}
+// export function ChatWindowHeaderSkeleton() {
+//     return (
+//         <div className="flex items-center justify-between px-4 py-3 border-b border-(--border-color)">
+//             <div className="flex items-center gap-3">
+//                 <Skeleton className="w-10 h-10 rounded-full" />
+//                 <div className="space-y-2">
+//                     <Skeleton className="h-4 w-32" />
+//                     <Skeleton className="h-3 w-20" />
+//                 </div>
+//             </div>
+//             <div className="flex items-center gap-2">
+//                 <Skeleton className="w-8 h-8 rounded-full" />
+//                 <Skeleton className="w-8 h-8 rounded-full" />
+//                 <Skeleton className="w-8 h-8 rounded-full" />
+//             </div>
+//         </div>
+//     );
+// }

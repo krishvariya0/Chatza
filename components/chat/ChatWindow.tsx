@@ -1,7 +1,7 @@
 "use client";
 
 import MessageBubble from "@/components/chat/MessageBubble";
-import { ChatMessagesSkeleton, ChatWindowHeaderSkeleton } from "@/components/skeletons";
+import { ChatMessagesSkeleton } from "@/components/skeletons";
 import { useChat } from "@/hooks/useChat";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useRouter } from "next/navigation";
@@ -115,7 +115,7 @@ export default function ChatWindow({
     if (loading) {
         return (
             <div className="flex-1 flex flex-col bg-(--bg-primary) h-full overflow-hidden">
-                <ChatWindowHeaderSkeleton />
+                {/* <ChatWindowHeaderSkeleton /> */}
                 <ChatMessagesSkeleton />
             </div>
         );
