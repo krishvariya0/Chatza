@@ -245,7 +245,6 @@ export default function ChatWindow({
                             onKeyDown={handleKeyDown}
                             onBlur={() => stopTyping()}
                             placeholder="Type a message..."
-                            disabled={sending}
                             className="w-full px-4 py-2.5 bg-(--bg-primary) border border-(--border-color) rounded-full text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus:ring-2 focus:ring-(--brand) focus:border-transparent transition-all disabled:opacity-50"
                             autoComplete="off"
                         />
