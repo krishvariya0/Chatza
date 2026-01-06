@@ -1,7 +1,8 @@
 "use client";
 
+import { ChatListSkeleton } from "@/components/skeletons";
 import NextImage from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 
 interface Chat {
@@ -28,6 +29,7 @@ interface ChatListProps {
         avatar?: string;
         isOnline?: boolean;
     }) => void;
+    currentUserId: string;
 }
 
 export default function ChatList({
@@ -35,62 +37,27 @@ export default function ChatList({
     searchQuery,
     selectedChatId,
     onSelectChat,
+    currentUserId,
 }: ChatListProps) {
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
-    const [currentUserId, setCurrentUserId] = useState<string>("");
 
-    // Fetch chats via REST API
-    useEffect(() => {
-        // Cleanup duplicates first, then fetch
-        const init = async () => {
-            try {
-                await fetch("/api/chats/cleanup", { method: "POST" });
-            } catch {
-                // Ignore cleanup errors
-            }
-            fetchChats();
-        };
-        init();
-    }, []);
-
-    // Listen for socket updates if available
-    useEffect(() => {
-        if (!socket?.connected) return;
-
-        const handleNewMessage = () => {
-            fetchChats();
-        };
-
-        socket.on("receive_message", handleNewMessage);
-
-        return () => {
-            socket.off("receive_message", handleNewMessage);
-        };
-    }, [socket]);
-
-    const fetchChats = async () => {
+    const fetchChats = useCallback(async () => {
         try {
-            // First get current user
-            const meRes = await fetch("/api/auth/me");
-            const meData = await meRes.json();
-            if (meRes.ok && meData.user) {
-                setCurrentUserId(meData.user.id);
-            }
 
-            // Then get chats
-            const res = await fetch("/api/chats");
-            const data = await res.json();
+            // Only fetch chats, we have currentUserId from props
+            const chatsRes = await fetch("/api/chats");
+            const chatsData = await chatsRes.json();
 
-            if (res.ok && data.success) {
+            if (chatsRes.ok && chatsData.success) {
                 // Deduplicate chats by other user ID
-                const uniqueChats = (data.chats || []).reduce((acc: Chat[], chat: Chat) => {
-                    const otherUser = chat.participants.find((p) => p._id !== meData.user?.id);
+                const uniqueChats = (chatsData.chats || []).reduce((acc: Chat[], chat: Chat) => {
+                    const otherUser = chat.participants.find((p) => p._id !== currentUserId);
                     if (!otherUser) return acc;
 
                     // Check if we already have a chat with this user
                     const existingIndex = acc.findIndex((c) => {
-                        const existingOther = c.participants.find((p) => p._id !== meData.user?.id);
+                        const existingOther = c.participants.find((p) => p._id !== currentUserId);
                         return existingOther?._id === otherUser._id;
                     });
 
@@ -115,7 +82,35 @@ export default function ChatList({
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentUserId]);
+
+    // Fetch chats via REST API
+    useEffect(() => {
+        // Fetch immediately - don't wait for cleanup
+        fetchChats();
+
+        // Run cleanup in background (non-blocking)
+        fetch("/api/chats/cleanup", { method: "POST" }).catch(() => {
+            // Ignore cleanup errors silently
+        });
+    }, [fetchChats]);
+
+    // Listen for socket updates if available
+    useEffect(() => {
+        if (!socket?.connected) return;
+
+        const handleNewMessage = () => {
+            fetchChats();
+        };
+
+        socket.on("receive_message", handleNewMessage);
+
+        return () => {
+            socket.off("receive_message", handleNewMessage);
+        };
+    }, [socket, fetchChats]);
+
+
 
     const filteredChats = chats.filter((chat) => {
         const otherUser = chat.participants.find((p) => p._id !== currentUserId);
@@ -151,14 +146,7 @@ export default function ChatList({
     };
 
     if (loading) {
-        return (
-            <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-(--brand) mx-auto mb-2" />
-                    <p className="text-sm text-(--text-muted)">Loading chats...</p>
-                </div>
-            </div>
-        );
+        return <ChatListSkeleton />;
     }
 
     if (filteredChats.length === 0) {

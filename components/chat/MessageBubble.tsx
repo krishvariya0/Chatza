@@ -14,6 +14,7 @@ interface Message {
     };
     text: string;
     seen: boolean;
+    seenAt?: string;
     edited?: boolean;
     deleted?: boolean;
     createdAt: string;
@@ -111,6 +112,22 @@ export default function MessageBubble({
         });
     };
 
+    const formatSeenTime = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInMs = now.getTime() - date.getTime();
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+        if (diffInMinutes < 1) return "just now";
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        if (diffInHours < 24) return `${diffInHours}h ago`;
+        if (diffInDays === 1) return "yesterday";
+        if (diffInDays < 7) return `${diffInDays} days ago`;
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    };
+
     return (
         <div
             className={`flex items-end gap-2 ${isOwn ? "flex-row-reverse" : "flex-row"
@@ -143,7 +160,7 @@ export default function MessageBubble({
                 onMouseLeave={() => !isEditing && setShowMenu(false)}
             >
                 {isEditing ? (
-                    <div className="bg-white border-2 border-red-500 rounded-2xl p-3 shadow-lg min-w-[200px]">
+                    <div className="bg-(--bg-card) border-2 border-(--brand) rounded-2xl p-3 shadow-lg min-w-[200px]">
                         <input
                             ref={editInputRef}
                             value={editText}
@@ -155,13 +172,13 @@ export default function MessageBubble({
                                     setEditText(message.text);
                                 }
                             }}
-                            className="w-full px-2 py-1 outline-none text-sm"
+                            className="w-full px-2 py-1 outline-none text-sm bg-(--bg-primary) text-(--text-primary)"
                         />
 
                         <div className="flex gap-2 mt-2">
                             <button
                                 onClick={handleEdit}
-                                className="flex-1 px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs"
+                                className="flex-1 px-3 py-1.5 bg-(--brand) text-white rounded-lg text-xs hover:opacity-90"
                             >
                                 <FiCheck className="inline mr-1" /> Save
                             </button>
@@ -170,7 +187,7 @@ export default function MessageBubble({
                                     setIsEditing(false);
                                     setEditText(message.text);
                                 }}
-                                className="flex-1 px-3 py-1.5 bg-gray-200 text-gray-700 rounded-lg text-xs"
+                                className="flex-1 px-3 py-1.5 bg-(--bg-primary) text-(--text-primary) border border-(--border-color) rounded-lg text-xs hover:bg-(--hover-bg)"
                             >
                                 <FiX className="inline mr-1" /> Cancel
                             </button>
@@ -188,14 +205,18 @@ export default function MessageBubble({
                                 <span>{formatTime(message.createdAt)}</span>
                                 {message.edited && !message.deleted && <span>• Edited</span>}
                                 {isOwn && !message.deleted && (
-                                    message.seen ? (
-                                        <>
-                                            <FiCheck className="text-blue-300" />
-                                            <FiCheck className="text-blue-300" />
-                                        </>
-                                    ) : (
-                                        <FiCheck className="text-red-100" />
-                                    )
+                                    <div className="flex items-center ml-1">
+                                        {message.seen ? (
+                                            // Double checkmark (blue) - Seen/Read
+                                            <div className="flex items-center -space-x-1">
+                                                <FiCheck className="w-3.5 h-3.5 text-blue-400 stroke-[3]" />
+                                                <FiCheck className="w-3.5 h-3.5 text-blue-400 stroke-[3]" />
+                                            </div>
+                                        ) : (
+                                            // Single checkmark - Sent/Delivered
+                                            <FiCheck className="w-3.5 h-3.5 opacity-70 stroke-[3]" />
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -203,26 +224,33 @@ export default function MessageBubble({
                         {showMenu && canEdit && !message.deleted && (
                             <div
                                 ref={menuRef}
-                                className="absolute top-0 right-full mr-2 bg-white rounded-lg shadow border py-1 min-w-[120px]"
+                                className="absolute top-0 right-full mr-2 bg-(--bg-card) rounded-lg shadow-lg border border-(--border-color) py-1 min-w-[120px] z-50"
                             >
                                 <button
                                     onClick={() => {
                                         setIsEditing(true);
                                         setShowMenu(false);
                                     }}
-                                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-2"
+                                    className="w-full px-4 py-2 text-left text-sm hover:bg-(--hover-bg) text-(--text-primary) flex items-center gap-2"
                                 >
                                     <FiEdit2 /> Edit
                                 </button>
                                 <button
                                     onClick={handleDelete}
-                                    className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 text-red-500 flex items-center gap-2"
+                                    className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-950 text-red-500 flex items-center gap-2"
                                 >
                                     <FiTrash2 /> Delete
                                 </button>
                             </div>
                         )}
                     </>
+                )}
+
+                {/* Seen timestamp - show below sent messages when seen */}
+                {isOwn && message.seen && !message.deleted && (
+                    <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 ml-auto text-right">
+                        Seen {formatSeenTime(message.seenAt || message.createdAt)}
+                    </div>
                 )}
             </div>
         </div>

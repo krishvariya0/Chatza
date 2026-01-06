@@ -1,7 +1,9 @@
 "use client";
 
 import MessageBubble from "@/components/chat/MessageBubble";
+import { ChatMessagesSkeleton, ChatWindowHeaderSkeleton } from "@/components/skeletons";
 import { useChat } from "@/hooks/useChat";
+import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FiSend } from "react-icons/fi";
@@ -27,6 +29,7 @@ interface ChatWindowProps {
     recipientId: string;
     recipientName: string;
     recipientAvatar?: string;
+    currentUserId: string;
 }
 
 export default function ChatWindow({
@@ -34,6 +37,7 @@ export default function ChatWindow({
     recipientId,
     recipientName,
     recipientAvatar,
+    currentUserId,
 }: ChatWindowProps) {
     const router = useRouter();
     const [inputText, setInputText] = useState("");
@@ -46,12 +50,20 @@ export default function ChatWindow({
         isTyping,
         loading,
         error,
-        currentUserId,
+
         sendMessage,
         editMessage,
         deleteMessage,
         markAsSeen,
-    } = useChat({ socket, recipientId });
+    } = useChat({ socket, recipientId, currentUserId });
+
+    // Typing indicator with throttling
+    const { startTyping, stopTyping } = useTypingIndicator({
+        socket,
+        recipientId,
+        throttleMs: 500,
+        autoStopMs: 5000,
+    });
 
     // Mark messages as seen when chat is viewed
     useEffect(() => {
@@ -75,13 +87,19 @@ export default function ChatWindow({
         setInputText("");
         setSending(true);
 
+        // Stop typing indicator
+        stopTyping();
+
         // Send message
         sendMessage(text, (success) => {
             setSending(false);
             if (!success) {
                 // Restore text on failure
                 setInputText(text);
-                alert("Failed to send message. Please try again.");
+                // Only show alert on desktop
+                if (window.innerWidth >= 768) {
+                    alert("Failed to send message. Please try again.");
+                }
             }
             inputRef.current?.focus();
         });
@@ -96,11 +114,9 @@ export default function ChatWindow({
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center bg-(--bg-primary)">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-(--brand) mx-auto mb-4" />
-                    <p className="text-(--text-muted)">Loading messages...</p>
-                </div>
+            <div className="flex-1 flex flex-col bg-(--bg-primary) h-full overflow-hidden">
+                <ChatWindowHeaderSkeleton />
+                <ChatMessagesSkeleton />
             </div>
         );
     }
@@ -198,11 +214,11 @@ export default function ChatWindow({
                 {/* Typing Indicator */}
                 {isTyping && (
                     <div className="flex items-center gap-2">
-                        <div className="bg-(--bg-card) border border-(--border-color) rounded-2xl px-4 py-3">
+                        <div className="bg-(--bg-card) border border-(--border-color) rounded-2xl px-4 py-3 shadow-sm">
                             <div className="flex gap-1">
-                                <div className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" />
-                                <div className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                                <div className="w-2 h-2 bg-(--text-muted) rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                                <div className="w-2 h-2 bg-(--brand) rounded-full animate-bounce" />
+                                <div className="w-2 h-2 bg-(--brand) rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                                <div className="w-2 h-2 bg-(--brand) rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                             </div>
                         </div>
                     </div>
@@ -219,8 +235,15 @@ export default function ChatWindow({
                             ref={inputRef}
                             type="text"
                             value={inputText}
-                            onChange={(e) => setInputText(e.target.value)}
+                            onChange={(e) => {
+                                setInputText(e.target.value);
+                                // Trigger typing indicator when user types
+                                if (e.target.value.trim()) {
+                                    startTyping();
+                                }
+                            }}
                             onKeyDown={handleKeyDown}
+                            onBlur={() => stopTyping()}
                             placeholder="Type a message..."
                             disabled={sending}
                             className="w-full px-4 py-2.5 bg-(--bg-primary) border border-(--border-color) rounded-full text-(--text-primary) placeholder:text-(--text-muted) focus:outline-none focus:ring-2 focus:ring-(--brand) focus:border-transparent transition-all disabled:opacity-50"

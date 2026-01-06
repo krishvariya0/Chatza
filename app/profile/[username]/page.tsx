@@ -91,9 +91,9 @@ export default function ProfilePage() {
 
             // Always fetch full profile data from API
             try {
+                // Fetch profile first (critical data)
                 const userRes = await fetch(`/api/users/${username}`);
                 const userData: { success: boolean; user: UserProfile; message?: string } = await userRes.json();
-                void userData; // Suppress unused variable warning
 
                 if (!userRes.ok) {
                     showToast.error(userData.message || "User not found");
@@ -105,19 +105,20 @@ export default function ProfilePage() {
                 setFollowersCount(userData.user.followersCount || 0);
                 setFollowingCount(userData.user.followingCount || 0);
 
-                // Fetch follow status if not own profile
+                // Fetch secondary data in parallel if not own profile
                 if (userData.user.username !== currentUser?.username) {
-                    const statusRes = await fetch(`/api/users/${username}/follow-status`);
+                    const [statusRes, mutualRes] = await Promise.all([
+                        fetch(`/api/users/${username}/follow-status`),
+                        fetch(`/api/users/${username}/mutual-followers`)
+                    ]);
+
                     const statusData = await statusRes.json();
+                    const mutualData = await mutualRes.json();
 
                     if (statusRes.ok && statusData.success) {
                         setIsFollowing(statusData.isFollowing);
                         setIsFollower(statusData.isFollower);
                     }
-
-                    // Fetch mutual followers
-                    const mutualRes = await fetch(`/api/users/${username}/mutual-followers`);
-                    const mutualData = await mutualRes.json();
 
                     if (mutualRes.ok && mutualData.success) {
                         setMutualFollowers(mutualData.mutualFollowers);

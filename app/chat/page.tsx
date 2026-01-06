@@ -3,10 +3,11 @@
 import ChatList from "@/components/chat/ChatList";
 import ChatWindow from "@/components/chat/ChatWindow";
 import NewChatModal from "@/components/chat/NewChatModal";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 import { useSocket } from "@/hooks/useSocket";
 import NextImage from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { FiArrowLeft, FiEdit, FiMoreVertical, FiPhone, FiSearch, FiVideo, FiX } from "react-icons/fi";
 
 function ChatPageContent() {
@@ -23,8 +24,22 @@ function ChatPageContent() {
     const [searchQuery, setSearchQuery] = useState("");
     const [showSearch, setShowSearch] = useState(false);
     const [showNewChatModal, setShowNewChatModal] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string>("");
 
-    const { socket, isConnected } = useSocket(token);
+    // Fetch current user once
+    useEffect(() => {
+        fetch("/api/auth/me")
+            .then(res => res.json())
+            .then(data => {
+                if (data.user) {
+                    setCurrentUserId(data.user.id);
+                }
+            })
+            .catch(console.error);
+    }, []);
+
+    const { socket, isConnected, connectionQuality } = useSocket(token);
+    const { isUserOnline } = useOnlineStatus(socket);
 
     useEffect(() => {
         const getToken = () => {
@@ -149,21 +164,30 @@ function ChatPageContent() {
                     </button>
                 </div>
 
-                {/* Connection Status - Minimal */}
+                {/* Connection Status - Enhanced */}
                 {!isConnected && token && (
                     <div className="px-4 py-2 bg-yellow-500/10 border-b border-yellow-500/20">
                         <p className="text-xs text-yellow-600 dark:text-yellow-400 flex items-center gap-2">
                             <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
-                            Connecting to chat server...
+                            Using fallback mode (Polling every 2s)
                         </p>
                     </div>
                 )}
 
                 {isConnected && (
-                    <div className="px-4 py-2 bg-green-500/10 border-b border-green-500/20">
-                        <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-2">
-                            <span className="w-2 h-2 bg-green-500 rounded-full" />
-                            Connected
+                    <div className={`px-4 py-2 border-b ${connectionQuality === 'excellent' ? 'bg-green-500/10 border-green-500/20' :
+                        connectionQuality === 'good' ? 'bg-blue-500/10 border-blue-500/20' :
+                            'bg-orange-500/10 border-orange-500/20'
+                        }`}>
+                        <p className={`text-xs flex items-center gap-2 ${connectionQuality === 'excellent' ? 'text-green-600 dark:text-green-400' :
+                            connectionQuality === 'good' ? 'text-blue-600 dark:text-blue-400' :
+                                'text-orange-600 dark:text-orange-400'
+                            }`}>
+                            <span className={`w-2 h-2 rounded-full ${connectionQuality === 'excellent' ? 'bg-green-500' :
+                                connectionQuality === 'good' ? 'bg-blue-500' :
+                                    'bg-orange-500'
+                                }`} />
+                            Real-time connected ({connectionQuality})
                         </p>
                     </div>
                 )}
@@ -174,6 +198,7 @@ function ChatPageContent() {
                     searchQuery={searchQuery}
                     selectedChatId={selectedChat?.id}
                     onSelectChat={setSelectedChat}
+                    currentUserId={currentUserId}
                 />
             </div>
 
@@ -209,22 +234,32 @@ function ChatPageContent() {
                                             {selectedChat.name.charAt(0).toUpperCase()}
                                         </div>
                                     )}
+                                    {/* Online status indicator */}
+                                    {selectedChat && isUserOnline(selectedChat.id) && (
+                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+                                    )}
                                 </div>
                                 <div>
                                     <h2 className="font-semibold text-(--text-primary)">{selectedChat.name}</h2>
-                                    <p className="text-xs text-(--text-muted)">@{selectedChat.username}</p>
+                                    <p className="text-xs text-(--text-muted)">
+                                        {isUserOnline(selectedChat.id) ? (
+                                            <span className="text-green-500">online</span>
+                                        ) : (
+                                            `@${selectedChat.username}`
+                                        )}
+                                    </p>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-1">
                                 <button
-                                    className="p-2 hover:bg-(--hover-bg) rounded-full transition-colors hidden sm:block"
+                                    className="p-2 hover:bg-(--hover-bg) rounded-full transition-colors"
                                     title="Voice call"
                                 >
                                     <FiPhone className="w-5 h-5 text-(--text-muted)" />
                                 </button>
                                 <button
-                                    className="p-2 hover:bg-(--hover-bg) rounded-full transition-colors hidden sm:block"
+                                    className="p-2 hover:bg-(--hover-bg) rounded-full transition-colors"
                                     title="Video call"
                                 >
                                     <FiVideo className="w-5 h-5 text-(--text-muted)" />
@@ -245,6 +280,7 @@ function ChatPageContent() {
                             recipientId={selectedChat.id}
                             recipientName={selectedChat.name}
                             recipientAvatar={selectedChat.avatar}
+                            currentUserId={currentUserId}
                         />
                     </>
                 ) : (

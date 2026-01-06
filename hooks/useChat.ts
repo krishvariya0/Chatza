@@ -27,7 +27,9 @@ interface CurrentUser {
 
 interface UseChatProps {
     socket: Socket | null;
+
     recipientId: string;
+    currentUserId?: string;
 }
 
 interface JoinChatResponse {
@@ -44,7 +46,7 @@ interface SendMessageResponse {
     error?: string;
 }
 
-export function useChat({ socket, recipientId }: UseChatProps) {
+export function useChat({ socket, recipientId, currentUserId: currentUserIdProp }: UseChatProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [chatId, setChatId] = useState<string | null>(null);
     const [isTyping, setIsTyping] = useState(false);
@@ -55,22 +57,27 @@ export function useChat({ socket, recipientId }: UseChatProps) {
     const initialized = useRef(false);
     const currentRecipientRef = useRef<string | null>(null);
 
-    // Get current user on mount
+    // Use prop if available, otherwise fetch internal (backward compatibility)
     useEffect(() => {
-        const fetchCurrentUser = async () => {
-            try {
-                const res = await fetch("/api/auth/me");
-                const data = await res.json();
-                if (res.ok && data.user) {
-                    setCurrentUserId(data.user.id);
-                    setCurrentUser(data.user);
+        if (currentUserIdProp) {
+            setCurrentUserId(currentUserIdProp);
+            // We can't set full currentUser without fetching, but ID is enough for most ops
+        } else {
+            const fetchCurrentUser = async () => {
+                try {
+                    const res = await fetch("/api/auth/me");
+                    const data = await res.json();
+                    if (res.ok && data.user) {
+                        setCurrentUserId(data.user.id);
+                        setCurrentUser(data.user);
+                    }
+                } catch (err) {
+                    logger.error("Failed to get current user:", err);
                 }
-            } catch (err) {
-                logger.error("Failed to get current user:", err);
-            }
-        };
-        fetchCurrentUser();
-    }, []);
+            };
+            fetchCurrentUser();
+        }
+    }, [currentUserIdProp]);
 
     // Initialize chat when recipientId or socket changes
     useEffect(() => {
@@ -92,35 +99,36 @@ export function useChat({ socket, recipientId }: UseChatProps) {
             currentRecipientRef.current = recipientId;
         }
 
-        // Wait a bit for socket to connect, but don't wait forever
-        const waitForSocket = setTimeout(() => {
-            if (!initialized.current && currentRecipientRef.current === recipientId) {
-                logger.log("⏳ [CHAT] Socket timeout, initializing anyway...");
-                initialized.current = true;
-                initializeChat();
-            }
-        }, 2000); // Wait max 2 seconds for socket
+        let quickFallbackTimeout: NodeJS.Timeout | undefined;
 
         if (socket?.connected) {
-            clearTimeout(waitForSocket);
+            // Socket is ready - initialize IMMEDIATELY (no delay)
             if (!initialized.current && currentRecipientRef.current === recipientId) {
                 initialized.current = true;
-                logger.log("🔄 [CHAT] Starting chat initialization...");
+                logger.log("⚡ [CHAT] Socket ready - initializing instantly!");
                 initializeChat();
             }
         } else {
-            logger.log("⏳ [CHAT] Waiting for socket connection...");
-            setLoading(true);
+            // Socket not connected - wait minimal time then use REST
+            quickFallbackTimeout = setTimeout(() => {
+                if (!initialized.current && currentRecipientRef.current === recipientId) {
+                    initialized.current = true;
+                    logger.log("⚡ [CHAT] Using REST API (socket not ready)");
+                    initializeChat();
+                }
+            }, 100); // Only 100ms wait before REST fallback
         }
 
         return () => {
-            clearTimeout(waitForSocket);
+            if (quickFallbackTimeout) {
+                clearTimeout(quickFallbackTimeout);
+            }
             // Only reset if recipient actually changed
             if (currentRecipientRef.current !== recipientId) {
                 initialized.current = false;
             }
         };
-    }, [recipientId, socket]);
+    }, [recipientId, socket?.connected]);
 
     const initializeChat = async () => {
         setLoading(true);
@@ -137,11 +145,11 @@ export function useChat({ socket, recipientId }: UseChatProps) {
                 return;
             }
 
-            // Set timeout to prevent infinite loading
+            // Set timeout to prevent infinite loading (very aggressive)
             const timeoutId = setTimeout(() => {
                 logger.warn("⏱️ [CHAT] Socket join_chat timeout, falling back to REST API");
                 initializeChatViaREST();
-            }, 10000); // 10 second timeout
+            }, 1500); // 1.5 second timeout for instant fallback
 
             // Step 1: Join chat room via socket
             logger.log("🔵 [CHAT] Emitting join_chat event...");
@@ -175,7 +183,7 @@ export function useChat({ socket, recipientId }: UseChatProps) {
         }
     };
 
-    // Fallback REST API initialization
+    // Fallback REST API initialization (OPTIMIZED)
     const initializeChatViaREST = async () => {
         try {
             logger.log("🔄 [CHAT] Initializing via REST API fallback...");
@@ -197,34 +205,37 @@ export function useChat({ socket, recipientId }: UseChatProps) {
             }
 
             const chatData = createData.chat;
-            setChatId(chatData._id);
-            logger.log("✅ [CHAT] Chat ID from REST:", chatData._id);
+            const chatIdValue = chatData._id;
 
-            // Step 2: Fetch existing messages
-            const messagesRes = await fetch(`/api/chats/${chatData._id}/messages`);
-            const messagesData = await messagesRes.json();
+            // Set chat ID immediately (don't wait for messages)
+            setChatId(chatIdValue);
+            logger.log("✅ [CHAT] Chat ID from REST:", chatIdValue);
 
-            if (messagesRes.ok && messagesData.success) {
-                setMessages(messagesData.messages || []);
-                logger.log("✅ [CHAT] Loaded messages via REST:", messagesData.messages?.length || 0);
-            }
+            // Step 2: Fetch messages and join socket room in PARALLEL (non-blocking)
+            const messagesFetch = fetch(`/api/chats/${chatIdValue}/messages`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        setMessages(data.messages || []);
+                        logger.log("✅ [CHAT] Loaded messages via REST:", data.messages?.length || 0);
+                    }
+                })
+                .catch(err => logger.warn("⚠️ [CHAT] Failed to fetch messages:", err));
 
-            // Try to join socket room in background (non-blocking) - CRITICAL for real-time
+            // Join socket room in background (don't wait for it)
             if (socket?.connected) {
-                logger.log("🔄 [CHAT] Attempting to join socket room for real-time updates...");
+                logger.log("🔄 [CHAT] Joining socket room for real-time updates...");
                 socket.emit("join_chat", { recipientId }, (response: JoinChatResponse) => {
                     if (response?.success) {
-                        logger.log("✅ [CHAT] Joined socket room in background:", response.roomId);
-                        logger.log("✅ [CHAT] Real-time updates now enabled");
-                    } else {
-                        logger.warn("⚠️ [CHAT] Failed to join socket room in background:", response?.error);
+                        logger.log("✅ [CHAT] Real-time updates enabled");
                     }
                 });
-            } else {
-                logger.warn("⚠️ [CHAT] Socket not connected, real-time updates disabled - will use polling");
             }
 
+            // Wait for messages to load before hiding loading state
+            await messagesFetch;
             setLoading(false);
+
         } catch (err) {
             logger.error("❌ [CHAT] REST API fallback failed:", err);
             setError("Failed to connect. Please try again.");
@@ -445,35 +456,76 @@ export function useChat({ socket, recipientId }: UseChatProps) {
 
         logger.log("🔄 [POLL] Starting polling for new messages (socket not connected)");
 
-        const pollInterval = setInterval(async () => {
-            try {
-                const res = await fetch(`/api/chats/${chatId}/messages`);
-                const data = await res.json();
+        let pollInterval: ReturnType<typeof setInterval> | null = null;
+        let isTabVisible = !document.hidden;
 
-                if (res.ok && data.success && Array.isArray(data.messages)) {
-                    setMessages(prev => {
-                        // Merge new messages
-                        const existingIds = new Set(prev.map(m => m._id));
-                        const newMessages = data.messages.filter((m: Message) => !existingIds.has(m._id));
+        const startPolling = () => {
+            if (pollInterval) return; // Already polling
 
-                        if (newMessages.length > 0) {
-                            logger.log("🔄 [POLL] Found", newMessages.length, "new messages via polling");
-                            // Sort by creation time
-                            return [...prev, ...newMessages].sort((a, b) =>
-                                new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-                            );
-                        }
-                        return prev;
-                    });
+            pollInterval = setInterval(async () => {
+                // Only poll if tab is visible
+                if (document.hidden) {
+                    return;
                 }
-            } catch (err) {
-                logger.warn("⚠️ [POLL] Polling error:", err);
+
+                try {
+                    const res = await fetch(`/api/chats/${chatId}/messages`);
+                    const data = await res.json();
+
+                    if (res.ok && data.success && Array.isArray(data.messages)) {
+                        setMessages(prev => {
+                            // Merge new messages
+                            const existingIds = new Set(prev.map(m => m._id));
+                            const newMessages = data.messages.filter((m: Message) => !existingIds.has(m._id));
+
+                            if (newMessages.length > 0) {
+                                logger.log("🔄 [POLL] Found", newMessages.length, "new messages via polling");
+                                // Sort by creation time
+                                return [...prev, ...newMessages].sort((a, b) =>
+                                    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+                                );
+                            }
+                            return prev;
+                        });
+                    }
+                } catch (err) {
+                    logger.warn("⚠️ [POLL] Polling error:", err);
+                }
+            }, 2000); // Poll every 2 seconds
+        };
+
+        const stopPolling = () => {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
             }
-        }, 2000); // Poll every 2 seconds
+        };
+
+        // Handle visibility change
+        const handleVisibilityChange = () => {
+            isTabVisible = !document.hidden;
+
+            if (document.hidden) {
+                logger.log("👁️ [POLL] Tab hidden, pausing polling");
+                stopPolling();
+            } else {
+                logger.log("👁️ [POLL] Tab visible, resuming polling");
+                startPolling();
+            }
+        };
+
+        // Listen for visibility changes
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Start polling if tab is visible
+        if (!document.hidden) {
+            startPolling();
+        }
 
         return () => {
             logger.log("🛑 [POLL] Stopping polling");
-            clearInterval(pollInterval);
+            stopPolling();
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
         };
     }, [chatId, socket?.connected]);
 

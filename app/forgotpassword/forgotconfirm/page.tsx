@@ -13,7 +13,10 @@ export default function ForgotConfirmPage() {
         e.preventDefault();
 
         if (!identifier) {
-            alert("Please enter email or username");
+            // Only show alert on desktop
+            if (typeof window !== "undefined" && window.innerWidth >= 768) {
+                alert("Please enter email or username");
+            }
             return;
         }
 
