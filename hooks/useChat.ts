@@ -16,6 +16,7 @@ interface Message {
     edited?: boolean;
     deleted?: boolean;
     createdAt: string;
+    clientTempId?: string; // For de-duplication
 }
 
 interface CurrentUser {
@@ -302,6 +303,7 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                 text: trimmedText,
                 seen: false,
                 createdAt: new Date().toISOString(),
+                clientTempId: tempId, // Store temp ID locally
             };
 
             // Add to messages immediately (optimistic update)
@@ -323,6 +325,7 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                         chatId,
                         recipientId,
                         text: trimmedText,
+                        clientTempId: tempId, // Send temp ID for de-duplication
                     }, (response: SendMessageResponse) => {
                         clearTimeout(timeoutId); // Clear timeout on response
 
@@ -372,19 +375,31 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
         logger.log("👂 [LISTENERS] Setting up socket listeners for chat:", chatId);
         logger.log("👂 [LISTENERS] Socket connected?", socket.connected);
 
-        const handleReceiveMessage = (data: { message: Message; chatId: string }) => {
+        const handleReceiveMessage = (data: { message: Message; chatId: string; clientTempId?: string }) => {
             logger.log("📨 [LISTENERS] Received message event:", data);
             logger.log("📨 [LISTENERS] Message chatId:", data.chatId, "Current chatId:", chatId);
 
-            // Accept message if it matches current chat (don't filter by sender - handle duplicates instead)
+            // Accept message if it matches current chat
             if (data.chatId === chatId) {
-                logger.log("✅ [LISTENERS] Adding message to state");
                 setMessages(prev => {
-                    // Check if message already exists (prevent duplicates)
+                    // Check if message already exists by _id
                     if (prev.some(m => m._id === data.message._id)) {
-                        logger.log("⚠️ [LISTENERS] Message already exists, skipping");
+                        logger.log("⚠️ [LISTENERS] Duplicate message (by _id), skipping");
                         return prev;
                     }
+
+                    // Check if message matches an optimistic update (by clientTempId)
+                    if (data.clientTempId) {
+                        const existingOptimistic = prev.findIndex(m => m.clientTempId === data.clientTempId);
+                        if (existingOptimistic !== -1) {
+                            logger.log("✅ [LISTENERS] Replaced optimistic message with server message");
+                            // Replace the optimistic message with the server message
+                            const newMessages = [...prev];
+                            newMessages[existingOptimistic] = data.message;
+                            return newMessages;
+                        }
+                    }
+
                     logger.log("✅ [LISTENERS] Adding new message, total messages:", prev.length + 1);
                     // Sort by creation time
                     const updated = [...prev, data.message].sort((a, b) =>

@@ -95,7 +95,7 @@ function ChatPageContent() {
     };
 
     return (
-        <div className="h-screen flex bg-(--bg-primary) overflow-hidden">
+        <div className="h-[100dvh] flex bg-(--bg-primary) overflow-hidden">
             {/* Sidebar - Chat List (Hidden on mobile when chat is selected) */}
             <div className={`
                 w-full md:w-[350px] lg:w-[400px] border-r border-(--border-color) flex flex-col bg-(--bg-card) h-full overflow-hidden
@@ -210,7 +210,7 @@ function ChatPageContent() {
                 {selectedChat ? (
                     <>
                         {/* Chat Header */}
-                        <div className="h-16 border-b border-(--border-color) flex items-center justify-between px-4 md:px-6 bg-(--bg-card)">
+                        <div className="h-16 shrink-0 border-b border-(--border-color) flex items-center justify-between px-4 md:px-6 bg-(--bg-card)">
                             <div className="flex items-center gap-3">
                                 {/* Back button - visible on mobile */}
                                 <button
@@ -322,7 +322,7 @@ export default function ChatPage() {
 
 function ChatPageSkeleton() {
     return (
-        <div className="h-screen flex bg-(--bg-primary) overflow-hidden">
+        <div className="h-[100dvh] flex bg-(--bg-primary) overflow-hidden">
             <div className="w-full md:w-[350px] lg:w-[400px] border-r border-(--border-color) flex flex-col bg-(--bg-card) h-full overflow-hidden">
                 <div className="p-4 border-b border-(--border-color) animate-pulse">
                     <div className="h-8 bg-(--bg-primary) rounded w-24 mb-2"></div>
