@@ -252,6 +252,7 @@ export default function ChatWindow({
 
                     <button
                         type="submit"
+                        onMouseDown={(e) => e.preventDefault()}
                         disabled={!inputText.trim() || sending}
                         className="p-3 bg-(--brand) text-white rounded-full hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                     >
