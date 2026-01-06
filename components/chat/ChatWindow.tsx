@@ -81,7 +81,7 @@ export default function ChatWindow({
         e.preventDefault();
 
         const text = inputText.trim();
-        if (!text || sending) return;
+        if (!text) return;
 
         // Clear input immediately
         setInputText("");
@@ -253,7 +253,7 @@ export default function ChatWindow({
                     <button
                         type="submit"
                         onMouseDown={(e) => e.preventDefault()}
-                        disabled={!inputText.trim() || sending}
+                        disabled={!inputText.trim()}
                         className="p-3 bg-(--brand) text-white rounded-full hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                     >
                         <FiSend className="w-5 h-5" />
