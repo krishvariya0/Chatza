@@ -5,7 +5,7 @@ import { ChatMessagesSkeleton } from "@/components/skeletons";
 import { useChat } from "@/hooks/useChat";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FiSend } from "react-icons/fi";
 import { Socket } from "socket.io-client";
 
@@ -41,7 +41,7 @@ export default function ChatWindow({
 }: ChatWindowProps) {
     const router = useRouter();
     const [inputText, setInputText] = useState("");
-    const [sending, setSending] = useState(false);
+    // const [sending, setSending] = useState(false); // Removed unused state
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -85,14 +85,14 @@ export default function ChatWindow({
 
         // Clear input immediately
         setInputText("");
-        setSending(true);
+        // setSending(true);
 
         // Stop typing indicator
         stopTyping();
 
         // Send message
         sendMessage(text, (success) => {
-            setSending(false);
+            // setSending(false);
             if (!success) {
                 // Restore text on failure
                 setInputText(text);
@@ -111,6 +111,30 @@ export default function ChatWindow({
             handleSendMessage(e);
         }
     };
+
+    // Find the last message sent by current user that is marked as seen
+    // We scan backwards from the end
+    const lastSeenMessageId = useMemo(() => {
+        for (let i = messages.length - 1; i >= 0; i--) {
+            const msg = messages[i];
+            if (msg.senderId._id === currentUserId && msg.seen) {
+                return msg._id;
+            }
+        }
+        return null;
+    }, [messages, currentUserId]);
+
+    // Group messages by date
+    const groupedMessages = useMemo(() => {
+        return messages.reduce((groups: Record<string, Message[]>, message) => {
+            const date = new Date(message.createdAt).toLocaleDateString();
+            if (!groups[date]) {
+                groups[date] = [];
+            }
+            groups[date].push(message);
+            return groups;
+        }, {});
+    }, [messages]);
 
     if (loading) {
         return (
@@ -152,16 +176,6 @@ export default function ChatWindow({
         );
     }
 
-    // Group messages by date
-    const groupedMessages = messages.reduce((groups: Record<string, Message[]>, message) => {
-        const date = new Date(message.createdAt).toLocaleDateString();
-        if (!groups[date]) {
-            groups[date] = [];
-        }
-        groups[date].push(message);
-        return groups;
-    }, {});
-
     return (
         <div className="flex-1 flex flex-col bg-(--bg-primary) min-h-0 overflow-hidden">
             {/* Messages Area */}
@@ -192,6 +206,7 @@ export default function ChatWindow({
                                     const isOwn = message.senderId._id === currentUserId;
                                     const prevMessage = index > 0 ? msgs[index - 1] : null;
                                     const showAvatar = !prevMessage || prevMessage.senderId._id !== message.senderId._id;
+                                    const showSeenText = message._id === lastSeenMessageId;
 
                                     return (
                                         <MessageBubble
@@ -203,6 +218,7 @@ export default function ChatWindow({
                                             onEdit={editMessage}
                                             onDelete={deleteMessage}
                                             recipientId={recipientId}
+                                            showSeenText={showSeenText}
                                         />
                                     );
                                 })}

@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/mongoose";
 import Chat from "@/models/Chat";
+import Message from "@/models/Message";
 import { Types } from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -49,7 +50,34 @@ export async function GET() {
             return true;
         });
 
-        return NextResponse.json({ success: true, chats: uniqueChats });
+        // Calculate unread count for each chat
+        const chatsWithUnread = await Promise.all(
+            uniqueChats.map(async (chat) => {
+                try {
+                    // Count messages in this chat where:
+                    // 1. seen is false
+                    // 2. senderId is NOT the current user (messages FROM the other user)
+                    const unreadCount = await Message.countDocuments({
+                        chatId: chat._id,
+                        seen: false,
+                        senderId: { $ne: user._id },
+                    });
+
+                    return {
+                        ...chat,
+                        unreadCount,
+                    };
+                } catch (error) {
+                    console.error("Error counting unread messages for chat:", chat._id, error);
+                    return {
+                        ...chat,
+                        unreadCount: 0,
+                    };
+                }
+            })
+        );
+
+        return NextResponse.json({ success: true, chats: chatsWithUnread });
     } catch (error) {
         console.error("Get chats error:", error);
         return NextResponse.json(

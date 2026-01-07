@@ -28,6 +28,7 @@ interface MessageBubbleProps {
     onEdit: (messageId: string, newText: string, recipientId: string) => void;
     onDelete: (messageId: string, recipientId: string) => void;
     recipientId: string;
+    showSeenText?: boolean;
 }
 
 export default function MessageBubble({
@@ -38,6 +39,7 @@ export default function MessageBubble({
     onEdit,
     onDelete,
     recipientId,
+    showSeenText = false,
 }: MessageBubbleProps) {
     const [showMenu, setShowMenu] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -247,8 +249,8 @@ export default function MessageBubble({
                 )}
 
                 {/* Seen timestamp - show below sent messages when seen */}
-                {isOwn && message.seen && !message.deleted && (
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 ml-auto text-right">
+                {isOwn && message.seen && !message.deleted && showSeenText && (
+                    <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 ml-auto text-right animate-in fade-in duration-300">
                         Seen {formatSeenTime(message.seenAt || message.createdAt)}
                     </div>
                 )}

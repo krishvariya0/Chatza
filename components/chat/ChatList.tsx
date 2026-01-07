@@ -1,6 +1,7 @@
 "use client";
 
 import { ChatListSkeleton } from "@/components/skeletons";
+import { useChat } from "@/contexts/ChatContext";
 import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
@@ -41,6 +42,9 @@ export default function ChatList({
 }: ChatListProps) {
     const [chats, setChats] = useState<Chat[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // Get unread counts from Socket.IO context
+    const { countsPerChat } = useChat();
 
     const fetchChats = useCallback(async () => {
         try {
@@ -95,21 +99,42 @@ export default function ChatList({
         });
     }, [fetchChats]);
 
-    // Listen for socket updates if available
+    // Listen for socket updates - refresh INSTANTLY (no delay)
     useEffect(() => {
-        if (!socket?.connected) return;
+        if (!socket?.connected) {
+            console.log('[ChatList] Socket not connected, updates will be delayed');
+            return;
+        }
 
-        const handleNewMessage = () => {
+        console.log('[ChatList] Socket connected - setting up INSTANT update listeners');
+
+        const handleNewMessage = (data?: unknown) => {
+            console.log("[ChatList] ⚡ NEW MESSAGE - Refreshing instantly!", data);
+            fetchChats(); // Instant refresh
+        };
+
+        const handleMessageSeen = (data?: unknown) => {
+            console.log("[ChatList] ⚡ MESSAGE SEEN - refreshing list to sync state", data);
+            // Fetch from server to ensure list order and content is perfectly synced
             fetchChats();
         };
 
+        const handleChatCreated = () => {
+            console.log("[ChatList] ⚡ CHAT CREATED - Refreshing instantly!");
+            fetchChats(); // Instant refresh
+        };
+
+        // Listen to all relevant events for instant updates
         socket.on("receive_message", handleNewMessage);
+        socket.on("message_seen", handleMessageSeen);
+        socket.on("chat_created", handleChatCreated);
 
         return () => {
             socket.off("receive_message", handleNewMessage);
+            socket.off("message_seen", handleMessageSeen);
+            socket.off("chat_created", handleChatCreated);
         };
     }, [socket, fetchChats]);
-
 
 
     const filteredChats = chats.filter((chat) => {
@@ -174,7 +199,9 @@ export default function ChatList({
                 if (!otherUser) return null;
 
                 const isSelected = selectedChatId === otherUser._id;
-                const hasUnread = chat.unreadCount && chat.unreadCount > 0;
+                // Use REAL-TIME count from Socket.IO context
+                const unreadCount = countsPerChat[chat._id] || 0;
+                const hasUnread = unreadCount > 0;
 
                 return (
                     <button
@@ -185,10 +212,9 @@ export default function ChatList({
                                 name: otherUser.fullName,
                                 username: otherUser.username,
                                 avatar: otherUser.profilePicture,
-                                isOnline: false,
                             })
                         }
-                        className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-(--hover-bg) transition-colors border-b border-(--border-color)/50 ${isSelected ? "bg-(--hover-bg)" : ""
+                        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${isSelected ? "bg-(--bg-card) border border-(--brand)" : "hover:bg-(--bg-card)"
                             }`}
                     >
                         {/* Avatar */}
@@ -230,7 +256,7 @@ export default function ChatList({
                                 {hasUnread && (
                                     <span className="shrink-0 w-5 h-5 bg-(--brand) rounded-full flex items-center justify-center">
                                         <span className="text-white text-[10px] font-bold">
-                                            {chat.unreadCount}
+                                            {unreadCount}
                                         </span>
                                     </span>
                                 )}
@@ -239,6 +265,6 @@ export default function ChatList({
                     </button>
                 );
             })}
-        </div>
+        </div >
     );
 }

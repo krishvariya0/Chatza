@@ -1,7 +1,8 @@
 import { logger } from "@/utils/logger";
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = process.env.SOCKET_URL || "http://localhost:3002";
+// Socket server URL - must use NEXT_PUBLIC_ prefix for client-side access
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3002";
 
 interface ConnectionStats {
     connectedAt?: number;

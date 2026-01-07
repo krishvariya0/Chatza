@@ -312,11 +312,18 @@ function ChatPageContent() {
     );
 }
 
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { ChatProvider } from "@/contexts/ChatContext";
+
 export default function ChatPage() {
     return (
-        <Suspense fallback={<ChatPageSkeleton />}>
-            <ChatPageContent />
-        </Suspense>
+        <AuthGuard>
+            <ChatProvider>
+                <Suspense fallback={<ChatPageSkeleton />}>
+                    <ChatPageContent />
+                </Suspense>
+            </ChatProvider>
+        </AuthGuard>
     );
 }
 

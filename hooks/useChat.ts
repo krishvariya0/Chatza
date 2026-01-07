@@ -184,6 +184,18 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
         }
     };
 
+    // Cleanup active chat on unmount or change
+    useEffect(() => {
+        const currentChatId = chatId;
+
+        return () => {
+            if (currentChatId && socket?.connected) {
+                logger.log("👋 [CHAT] Leaving chat (cleanup):", currentChatId);
+                socket.emit("leave_chat", { chatId: currentChatId });
+            }
+        };
+    }, [chatId, socket]);
+
     // Fallback REST API initialization (OPTIMIZED)
     const initializeChatViaREST = async () => {
         try {
@@ -441,20 +453,37 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
             );
         };
 
+        const handleMessageSeenUpdate = (data: { chatId: string; seenBy?: string; seenAt?: Date }) => {
+            logger.log("👁️ [LISTENERS] Message seen update:", data);
+
+            // If the update isn't for this chat, ignore it (unless we want to update chat list indicators too)
+            if (data.chatId !== chatId) return;
+
+            setMessages(prev => prev.map(msg => {
+                // If message is ours and not yet seen, mark it seen
+                // OR if we are the receiver and just marked it seen (though usually that happens on load)
+                if (!msg.seen) {
+                    return { ...msg, seen: true, seenAt: data.seenAt?.toString() || new Date().toISOString() };
+                }
+                return msg;
+            }));
+        };
+
         socket.on("receive_message", handleReceiveMessage);
         socket.on("user_typing", handleUserTyping);
         socket.on("message_edited", handleMessageEdited);
         socket.on("message_deleted", handleMessageDeleted);
+        socket.on("message_seen_update", handleMessageSeenUpdate);
 
         logger.log("✅ [LISTENERS] Listeners registered");
 
         return () => {
-            logger.log("🧹 [LISTENERS] Cleaning up listeners");
             if (socket) {
                 socket.off("receive_message", handleReceiveMessage);
                 socket.off("user_typing", handleUserTyping);
                 socket.off("message_edited", handleMessageEdited);
                 socket.off("message_deleted", handleMessageDeleted);
+                socket.off("message_seen_update", handleMessageSeenUpdate);
             }
         };
     }, [socket, chatId, recipientId, currentUserId]);
@@ -544,26 +573,65 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
         };
     }, [chatId, socket?.connected]);
 
-    const markAsSeen = useCallback(() => {
-        if (!chatId || !socket?.connected) {
+    const markAsSeen = useCallback(async () => {
+        if (!chatId) {
+            logger.warn("⚠️ [SEEN] No chatId, cannot mark as seen");
             return;
         }
 
-        logger.log("👁️ [SEEN] Marking messages as seen for chat:", chatId);
-        socket.emit("mark_as_seen", { chatId }, (response: { success?: boolean; error?: string }) => {
-            if (response?.success) {
-                logger.log("✅ [SEEN] Messages marked as seen");
-                // Update local state to reflect seen status
-                setMessages(prev =>
-                    prev.map(m => ({
-                        ...m,
-                        seen: m.senderId._id !== currentUserId ? true : m.seen,
-                    }))
-                );
-            } else {
-                logger.warn("⚠️ [SEEN] Failed to mark as seen:", response?.error);
+        logger.log("👁️ [SEEN] Attempting to mark messages as seen for chat:", chatId);
+        logger.log("👁️ [SEEN] Socket connected?", socket?.connected);
+
+        // Try socket first
+        if (socket?.connected) {
+            logger.log("👁️ [SEEN] Using Socket.IO to mark as seen");
+            socket.emit("mark_as_seen", { chatId }, (response: { success?: boolean; error?: string }) => {
+                if (response?.success) {
+                    logger.log("✅ [SEEN] Messages marked as seen via socket");
+                    // Update local state to reflect seen status
+                    setMessages(prev =>
+                        prev.map(m => ({
+                            ...m,
+                            seen: m.senderId._id !== currentUserId ? true : m.seen,
+                        }))
+                    );
+                } else {
+                    logger.warn("⚠️ [SEEN] Socket failed, falling back to REST API:", response?.error);
+                    // Fallback to REST API
+                    markAsSeenViaREST();
+                }
+            });
+        } else {
+            // Use REST API if socket not connected
+            logger.warn("⚠️ [SEEN] Socket not connected, using REST API");
+            await markAsSeenViaREST();
+        }
+
+        async function markAsSeenViaREST() {
+            try {
+                logger.log("🔄 [SEEN] Marking as seen via REST API...");
+                const res = await fetch(`/api/chats/${chatId}/messages/mark-seen`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    logger.log("✅ [SEEN] Messages marked as seen via REST API");
+                    // Update local state
+                    setMessages(prev =>
+                        prev.map(m => ({
+                            ...m,
+                            seen: m.senderId._id !== currentUserId ? true : m.seen,
+                        }))
+                    );
+                } else {
+                    logger.error("❌ [SEEN] REST API failed:", data.error);
+                }
+            } catch (error) {
+                logger.error("❌ [SEEN] REST API error:", error);
             }
-        });
+        }
     }, [chatId, socket, currentUserId]);
 
     const sendTyping = useCallback((typing: boolean) => {

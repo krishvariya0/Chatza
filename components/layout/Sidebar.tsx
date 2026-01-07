@@ -22,9 +22,11 @@ interface SidebarProps {
     currentUsername?: string;
     userFullName?: string;
     userProfilePicture?: string | null;
+    notificationCount?: number;
+    chatUnreadCount?: number;
 }
 
-export function Sidebar({ currentUsername, userFullName, userProfilePicture }: SidebarProps) {
+export function Sidebar({ currentUsername, userFullName, userProfilePicture, notificationCount = 0, chatUnreadCount = 0 }: SidebarProps) {
     const pathname = usePathname();
     const { logout } = useUser();
 
@@ -72,30 +74,42 @@ export function Sidebar({ currentUsername, userFullName, userProfilePicture }: S
                         })}
                     </nav>
 
-                    {/* Chat Button */}
+                    {/* Chat Button with unread badge */}
                     <Link
                         href="/chat"
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-4 transition ${isActive("/chat")
+                        className={`flex items-center gap-3 px-4 py-3 rounded-xl mb-4 transition relative ${isActive("/chat")
                             ? "bg-(--brand) text-white"
                             : "text-(--text-primary) hover:bg-(--bg-primary)"
                             }`}
                     >
                         <MessageSquare size={20} />
                         <span className="font-medium">Chat</span>
+                        {chatUnreadCount > 0 && (
+                            <span className="ml-auto min-w-[24px] h-6 px-2 flex items-center justify-center bg-(--brand) text-white text-xs font-bold rounded-full">
+                                {chatUnreadCount > 99 ? '99+' : chatUnreadCount}
+                            </span>
+                        )}
                     </Link>
 
                     {/* Additional Nav Items */}
                     <nav className="space-y-1 mb-auto">
+                        {/* Updates with notification badge */}
                         <Link
                             href="/updates"
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${isActive("/updates")
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition relative ${isActive("/updates")
                                 ? "bg-(--brand) text-white"
                                 : "text-(--text-primary) hover:bg-(--bg-primary)"
                                 }`}
                         >
                             <Bell size={20} />
-                            <span className="font-medium">Update</span>
+                            <span className="font-medium">Updates</span>
+                            {notificationCount > 0 && (
+                                <span className="ml-auto min-w-[24px] h-6 px-2 flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full">
+                                    {notificationCount > 99 ? '99+' : notificationCount}
+                                </span>
+                            )}
                         </Link>
+
                         <Link
                             href="/create"
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition ${isActive("/create")
