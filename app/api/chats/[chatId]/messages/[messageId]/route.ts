@@ -134,6 +134,11 @@ export async function DELETE(
         message.text = "This message was deleted";
         await message.save();
 
+        await Message.updateMany(
+            { "replyTo.messageId": messageId },
+            { $set: { "replyTo.text": "This message was deleted" } }
+        );
+
         return NextResponse.json({
             success: true,
             message: message.toObject(),

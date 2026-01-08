@@ -34,6 +34,9 @@ export async function connectToDatabase() {
   }
 
   cached!.conn = await cached!.promise;
+  console.log(
+    `✅ MongoDB connected (Next): ${cached!.conn.connection.host}/${cached!.conn.connection.name}`
+  );
   return cached!.conn;
 }
 

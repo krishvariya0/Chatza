@@ -6,11 +6,12 @@ import { useChat } from "@/hooks/useChat";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiSend } from "react-icons/fi";
+import { FiSend, FiX } from "react-icons/fi";
 import { Socket } from "socket.io-client";
 
 interface Message {
     _id: string;
+    chatId: string;
     senderId: {
         _id: string;
         username: string;
@@ -19,9 +20,20 @@ interface Message {
     };
     text: string;
     seen: boolean;
+    seenAt?: string;
     edited?: boolean;
+    editedAt?: string;
     deleted?: boolean;
+    deletedAt?: string;
+    delivered?: boolean;
+    deliveredAt?: string;
     createdAt: string;
+    replyTo?: {
+        messageId: string;
+        text: string;
+        senderId: string;
+        senderName: string;
+    };
 }
 
 interface ChatWindowProps {
@@ -55,6 +67,9 @@ export default function ChatWindow({
         editMessage,
         deleteMessage,
         markAsSeen,
+        replyingTo,
+        initiateReply,
+        cancelReply,
     } = useChat({ socket, recipientId, currentUserId });
 
     // Typing indicator with throttling
@@ -217,6 +232,7 @@ export default function ChatWindow({
                                             recipientAvatar={recipientAvatar}
                                             onEdit={editMessage}
                                             onDelete={deleteMessage}
+                                            onReply={initiateReply}
                                             recipientId={recipientId}
                                             showSeenText={showSeenText}
                                         />
@@ -245,6 +261,24 @@ export default function ChatWindow({
 
             {/* Input Area */}
             <div className="shrink-0 border-t border-(--border-color) p-4 bg-(--bg-card)">
+                {/* Reply Preview Banner */}
+                {replyingTo && (
+                    <div className="flex items-center justify-between bg-(--bg-primary) border-t border-(--border-color) px-4 py-2 text-sm text-(--text-muted)">
+                        <div className="flex flex-col border-l-4 border-(--brand) pl-3">
+                            <span className="font-semibold text-(--brand)">
+                                Replying to {replyingTo.senderId._id === currentUserId ? "Yourself" : replyingTo.senderId.fullName}
+                            </span>
+                            <span className="line-clamp-1">{replyingTo.text}</span>
+                        </div>
+                        <button
+                            onClick={cancelReply}
+                            className="p-1 hover:bg-(--bg-card) rounded-full transition-colors"
+                        >
+                            <FiX className="w-5 h-5" />
+                        </button>
+                    </div>
+                )}
+
                 <form onSubmit={handleSendMessage} className="flex items-center gap-3">
                     <div className="flex-1 relative">
                         <input

@@ -1,5 +1,40 @@
 import { Schema, model, models } from "mongoose";
 
+if (models.Message) {
+    if (!(models.Message as any).schema.path("delivered")) {
+        (models.Message as any).schema.add({
+            delivered: {
+                type: Boolean,
+                default: false,
+            },
+        });
+    }
+
+    if (!(models.Message as any).schema.path("deliveredAt")) {
+        (models.Message as any).schema.add({
+            deliveredAt: {
+                type: Date,
+                default: null,
+            },
+        });
+    }
+
+    if (!(models.Message as any).schema.path("replyTo")) {
+        (models.Message as any).schema.add({
+            replyTo: {
+                type: {
+                    messageId: { type: String },
+                    text: { type: String },
+                    senderId: { type: String },
+                    senderName: { type: String },
+                },
+                required: false,
+                default: undefined,
+            },
+        });
+    }
+}
+
 const MessageSchema = new Schema(
     {
         chatId: {
@@ -43,6 +78,24 @@ const MessageSchema = new Schema(
         deletedAt: {
             type: Date,
             default: null,
+        },
+        delivered: {
+            type: Boolean,
+            default: false,
+        },
+        deliveredAt: {
+            type: Date,
+            default: null,
+        },
+        replyTo: {
+            type: {
+                messageId: { type: String },
+                text: { type: String },
+                senderId: { type: String },
+                senderName: { type: String },
+            },
+            required: false,
+            default: undefined,
         },
     },
     { timestamps: true }

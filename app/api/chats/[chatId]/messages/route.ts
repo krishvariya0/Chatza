@@ -80,7 +80,7 @@ export async function POST(
 
         const { chatId } = await params;
         const body = await request.json();
-        const { text, recipientId } = body;
+        const { text, recipientId, replyTo } = body;
 
         if (!text?.trim()) {
             return NextResponse.json({ success: false, error: "Message text required" }, { status: 400 });
@@ -103,6 +103,7 @@ export async function POST(
             const iFollow = await Follow.findOne({ follower: user._id, following: recipientId });
             const theyFollow = await Follow.findOne({ follower: recipientId, following: user._id });
 
+            // Note: Keeping mutual check as per existing
             if (!iFollow || !theyFollow) {
                 return NextResponse.json({
                     success: false,
@@ -111,12 +112,57 @@ export async function POST(
             }
         }
 
+        let normalizedReplyTo = undefined;
+
+        if (replyTo !== undefined) {
+            if (!replyTo || typeof replyTo !== "object") {
+                return NextResponse.json({ success: false, error: "Invalid replyTo" }, { status: 400 });
+            }
+
+            const { messageId } = replyTo;
+
+            if (!messageId || typeof messageId !== "string" || !Types.ObjectId.isValid(messageId)) {
+                return NextResponse.json({ success: false, error: "Invalid replyTo.messageId" }, { status: 400 });
+            }
+
+            const repliedMessage = await Message.findById(messageId).populate("senderId", "username");
+
+            if (!repliedMessage) {
+                return NextResponse.json({ success: false, error: "Replied message not found" }, { status: 400 });
+            }
+
+            if (repliedMessage.chatId.toString() !== chatId) {
+                return NextResponse.json({ success: false, error: "Invalid replyTo" }, { status: 400 });
+            }
+
+            const repliedSender = repliedMessage.senderId as { _id?: { toString(): string }, username?: string } | string;
+            const repliedSenderId = typeof repliedSender === 'object' && repliedSender?._id?.toString?.() || (typeof repliedSender === 'string' ? repliedSender : "");
+            const repliedSenderName = typeof repliedSender === 'object' && typeof repliedSender?.username === "string" ? repliedSender.username : "";
+
+            normalizedReplyTo = {
+                messageId,
+                text: typeof repliedMessage.text === "string" ? repliedMessage.text : "",
+                senderId: repliedSenderId,
+                senderName: repliedSenderName,
+            };
+        }
+
         const message = await Message.create({
             chatId,
             senderId: user._id,
             text: text.trim(),
             seen: false,
+            replyTo: normalizedReplyTo
         });
+
+        if (normalizedReplyTo) {
+            await Message.updateOne(
+                { _id: message._id },
+                { $set: { replyTo: normalizedReplyTo } },
+                { strict: false }
+            );
+            message.replyTo = normalizedReplyTo;
+        }
 
         await Chat.findByIdAndUpdate(chatId, {
             lastMessage: text.trim(),

@@ -13,10 +13,21 @@ interface Message {
     };
     text: string;
     seen: boolean;
+    seenAt?: string;
     edited?: boolean;
+    editedAt?: string;
     deleted?: boolean;
+    deletedAt?: string;
+    delivered?: boolean;
+    deliveredAt?: string;
     createdAt: string;
     clientTempId?: string; // For de-duplication
+    replyTo?: {
+        messageId: string;
+        text: string;
+        senderId: string;
+        senderName: string;
+    };
 }
 
 interface CurrentUser {
@@ -49,14 +60,28 @@ interface SendMessageResponse {
 
 export function useChat({ socket, recipientId, currentUserId: currentUserIdProp }: UseChatProps) {
     const [messages, setMessages] = useState<Message[]>([]);
+    const messagesRef = useRef<Message[]>([]);
     const [chatId, setChatId] = useState<string | null>(null);
     const [isTyping, setIsTyping] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentUserId, setCurrentUserId] = useState<string>("");
     const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+    const [replyingTo, setReplyingTo] = useState<Message | null>(null);
     const initialized = useRef(false);
     const currentRecipientRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        messagesRef.current = messages;
+    }, [messages]);
+
+    const initiateReply = useCallback((message: Message) => {
+        setReplyingTo(message);
+    }, []);
+
+    const cancelReply = useCallback(() => {
+        setReplyingTo(null);
+    }, []);
 
     // Use prop if available, otherwise fetch internal (backward compatibility)
     useEffect(() => {
@@ -258,21 +283,29 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
     };
 
     // Send message via REST API (fallback)
-    const sendMessageViaREST = async (text: string, tempId: string, callback?: (success: boolean) => void) => {
+    const sendMessageViaREST = async (text: string, tempId: string, replyTo?: Message["replyTo"], callback?: (success: boolean) => void) => {
         try {
             logger.log("🔄 [SEND] Sending message via REST API fallback...");
 
             const res = await fetch(`/api/chats/${chatId}/messages`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text, recipientId }),
+                body: JSON.stringify({ text, recipientId, replyTo }),
             });
             const data = await res.json();
 
             if (res.ok && data.success && data.message) {
                 // Replace temp message with real one from server
                 setMessages(prev =>
-                    prev.map(m => m._id === tempId ? data.message : m)
+                    prev.map(m => {
+                        if (m._id !== tempId) return m;
+                        const serverMessage: Message = data.message;
+                        return {
+                            ...serverMessage,
+                            clientTempId: m.clientTempId,
+                            replyTo: serverMessage.replyTo ?? m.replyTo,
+                        };
+                    })
                 );
                 logger.log("✅ [SEND] Message sent via REST API");
                 callback?.(true);
@@ -301,6 +334,33 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                 return;
             }
 
+            let replyData: Message["replyTo"] | undefined;
+
+            if (replyingTo) {
+                let resolvedReplyMessageId = replyingTo._id;
+
+                if (resolvedReplyMessageId.startsWith("temp_")) {
+                    const resolved = messagesRef.current.find(
+                        m => m.clientTempId === resolvedReplyMessageId && !m._id.startsWith("temp_")
+                    );
+
+                    if (resolved) {
+                        resolvedReplyMessageId = resolved._id;
+                    } else {
+                        logger.warn("⚠️ [SEND] Cannot reply to optimistic message yet (waiting for server id)");
+                        callback?.(false);
+                        return;
+                    }
+                }
+
+                replyData = {
+                    messageId: resolvedReplyMessageId,
+                    text: replyingTo.text,
+                    senderId: replyingTo.senderId._id,
+                    senderName: replyingTo.senderId.username
+                };
+            }
+
             // Create optimistic message for instant display
             const tempId = `temp_${Date.now()}_${Math.random()}`;
             const newMessage: Message = {
@@ -316,20 +376,22 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                 seen: false,
                 createdAt: new Date().toISOString(),
                 clientTempId: tempId, // Store temp ID locally
+                replyTo: replyData
             };
 
             // Add to messages immediately (optimistic update)
             setMessages(prev => [...prev, newMessage]);
+            setReplyingTo(null); // Clear reply state immediately
 
             // Try socket first, fallback to REST API
             if (socket?.connected) {
-                logger.log("📤 [SEND] Sending message via socket:", { chatId, recipientId, text: trimmedText });
+                logger.log("📤 [SEND] Sending message via socket:", { chatId, recipientId, text: trimmedText, replyTo: replyData });
 
                 try {
                     // Set timeout for socket response
                     const timeoutId = setTimeout(() => {
                         logger.warn("⏱️ [SEND] Socket send timeout, falling back to REST API");
-                        sendMessageViaREST(trimmedText, tempId, callback);
+                        sendMessageViaREST(trimmedText, tempId, replyData, callback);
                     }, 5000); // 5 second timeout
 
                     // Send via socket
@@ -338,6 +400,7 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                         recipientId,
                         text: trimmedText,
                         clientTempId: tempId, // Send temp ID for de-duplication
+                        replyTo: replyData
                     }, (response: SendMessageResponse) => {
                         clearTimeout(timeoutId); // Clear timeout on response
 
@@ -347,28 +410,35 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                             // Replace temp message with real one from server
                             const serverMessage = response.message;
                             setMessages(prev =>
-                                prev.map(m => m._id === tempId ? serverMessage : m)
+                                prev.map(m => {
+                                    if (m._id !== tempId) return m;
+                                    return {
+                                        ...serverMessage,
+                                        clientTempId: m.clientTempId,
+                                        replyTo: serverMessage.replyTo ?? m.replyTo,
+                                    };
+                                })
                             );
                             logger.log("✅ [SEND] Message sent successfully via socket");
                             callback?.(true);
                         } else {
                             // Fallback to REST API on socket failure
                             logger.warn("⚠️ [SEND] Socket send failed, falling back to REST API");
-                            sendMessageViaREST(trimmedText, tempId, callback);
+                            sendMessageViaREST(trimmedText, tempId, replyData, callback);
                         }
                     });
                 } catch (err) {
                     logger.error("❌ [SEND] Socket send error:", err);
                     // Fallback to REST API
-                    sendMessageViaREST(trimmedText, tempId, callback);
+                    sendMessageViaREST(trimmedText, tempId, replyData, callback);
                 }
             } else {
                 logger.warn("⚠️ [SEND] Socket not connected, using REST API");
                 // Use REST API directly
-                sendMessageViaREST(trimmedText, tempId, callback);
+                sendMessageViaREST(trimmedText, tempId, replyData, callback);
             }
         },
-        [chatId, recipientId, currentUserId, currentUser, socket]
+        [chatId, recipientId, currentUserId, currentUser, socket, replyingTo]
     );
 
     // Socket event listeners (for real-time updates from other users)
@@ -407,7 +477,13 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                             logger.log("✅ [LISTENERS] Replaced optimistic message with server message");
                             // Replace the optimistic message with the server message
                             const newMessages = [...prev];
-                            newMessages[existingOptimistic] = data.message;
+                            const optimistic = newMessages[existingOptimistic];
+                            const serverMessage = data.message;
+                            newMessages[existingOptimistic] = {
+                                ...serverMessage,
+                                clientTempId: optimistic.clientTempId,
+                                replyTo: serverMessage.replyTo ?? optimistic.replyTo,
+                            };
                             return newMessages;
                         }
                     }
@@ -431,12 +507,17 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
             }
         };
 
-        const handleMessageEdited = (data: { messageId: string; newText: string; edited: boolean; editedAt: Date }) => {
+        const handleMessageEdited = (data: { messageId: string; newText: string; edited: boolean; editedAt: Date | string }) => {
             logger.log("📝 [LISTENERS] Message edited event:", data);
             setMessages(prev =>
                 prev.map(m =>
                     m._id === data.messageId
-                        ? { ...m, text: data.newText, edited: data.edited, editedAt: data.editedAt }
+                        ? {
+                            ...m,
+                            text: data.newText,
+                            edited: data.edited,
+                            editedAt: typeof data.editedAt === "string" ? data.editedAt : data.editedAt?.toString(),
+                        }
                         : m
                 )
             );
@@ -448,7 +529,15 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                 prev.map(m =>
                     m._id === data.messageId
                         ? { ...m, deleted: true, text: "This message was deleted" }
-                        : m
+                        : m.replyTo?.messageId === data.messageId
+                            ? {
+                                ...m,
+                                replyTo: {
+                                    ...m.replyTo,
+                                    text: "This message was deleted",
+                                },
+                            }
+                            : m
                 )
             );
         };
@@ -749,7 +838,15 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                             deleted: true,
                             text: "This message was deleted",
                         }
-                        : m
+                        : m.replyTo?.messageId === messageId
+                            ? {
+                                ...m,
+                                replyTo: {
+                                    ...m.replyTo,
+                                    text: "This message was deleted",
+                                },
+                            }
+                            : m
                 )
             );
 
@@ -770,7 +867,15 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                                             deleted: true,
                                             text: "This message was deleted",
                                         }
-                                        : m
+                                        : m.replyTo?.messageId === messageId
+                                            ? {
+                                                ...m,
+                                                replyTo: {
+                                                    ...m.replyTo,
+                                                    text: "This message was deleted",
+                                                },
+                                            }
+                                            : m
                                 )
                             );
                         } else {
@@ -807,7 +912,15 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
                                         deleted: true,
                                         text: "This message was deleted",
                                     }
-                                    : m
+                                    : m.replyTo?.messageId === messageId
+                                        ? {
+                                            ...m,
+                                            replyTo: {
+                                                ...m.replyTo,
+                                                text: "This message was deleted",
+                                            },
+                                        }
+                                        : m
                             )
                         );
                     } else {
@@ -839,5 +952,8 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
         deleteMessage,
         markAsSeen,
         sendTyping,
+        replyingTo,
+        initiateReply,
+        cancelReply,
     };
 }
