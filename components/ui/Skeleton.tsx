@@ -84,21 +84,125 @@ export function ChatMessagesSkeleton() {
     );
 }
 
-// export function ChatWindowHeaderSkeleton() {
-//     return (
-//         <div className="flex items-center justify-between px-4 py-3 border-b border-(--border-color)">
-//             <div className="flex items-center gap-3">
-//                 <Skeleton className="w-10 h-10 rounded-full" />
-//                 <div className="space-y-2">
-//                     <Skeleton className="h-4 w-32" />
-//                     <Skeleton className="h-3 w-20" />
-//                 </div>
-//             </div>
-//             <div className="flex items-center gap-2">
-//                 <Skeleton className="w-8 h-8 rounded-full" />
-//                 <Skeleton className="w-8 h-8 rounded-full" />
-//                 <Skeleton className="w-8 h-8 rounded-full" />
-//             </div>
-//         </div>
-//     );
-// }
+export function ProfileSkeleton() {
+    return (
+        <div className="max-w-4xl mx-auto w-full animate-pulse">
+            {/* Cover */}
+            <div className="h-48 sm:h-64 bg-(--border-color) rounded-b-3xl" />
+
+            <div className="px-4 sm:px-6 relative">
+                {/* Avatar */}
+                <div className="flex justify-center sm:justify-start -mt-16 sm:-mt-20 mb-6">
+                    <div className="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-(--border-color) border-4 border-(--bg-card)" />
+                </div>
+
+                {/* Card */}
+                <div className="bg-(--bg-card) rounded-3xl border border-(--border-color) shadow-xl p-6 sm:p-8">
+                    {/* Name */}
+                    <div className="h-6 w-48 bg-(--border-color) rounded mb-2 mx-auto sm:mx-0" />
+                    <div className="h-4 w-32 bg-(--border-color) rounded mb-4 mx-auto sm:mx-0" />
+
+                    {/* Bio */}
+                    <div className="space-y-2 mb-4">
+                        <div className="h-4 w-full bg-(--border-color) rounded" />
+                        <div className="h-4 w-4/5 bg-(--border-color) rounded" />
+                    </div>
+
+                    {/* Info row */}
+                    <div className="flex gap-4 mb-6 justify-center sm:justify-start">
+                        <div className="h-4 w-24 bg-(--border-color) rounded" />
+                        <div className="h-4 w-24 bg-(--border-color) rounded" />
+                        <div className="h-4 w-24 bg-(--border-color) rounded" />
+                    </div>
+
+                    {/* Stats */}
+                    <div className="flex gap-6 justify-center sm:justify-start mb-6">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="h-6 w-20 bg-(--border-color) rounded" />
+                        ))}
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex gap-6 mb-6">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="h-5 w-20 bg-(--border-color) rounded" />
+                        ))}
+                    </div>
+
+                    {/* Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                        {Array.from({ length: 9 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="aspect-square rounded-xl bg-(--border-color)"
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export function EditProfileSkeleton() {
+    return (
+        <div className="min-h-screen bg-(--bg-primary) flex animate-pulse">
+            {/* Sidebar skeleton */}
+            <div className="hidden lg:block w-64 border-r border-(--border-color) bg-(--bg-card)">
+                <div className="p-6 space-y-4">
+                    <div className="h-10 w-10 rounded-full bg-(--border-color)" />
+                    <div className="h-4 w-32 bg-(--border-color) rounded" />
+                    <div className="h-3 w-24 bg-(--border-color) rounded" />
+
+                    <div className="mt-8 space-y-3">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div
+                                key={i}
+                                className="h-4 w-full bg-(--border-color) rounded"
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Main content */}
+            <div className="flex-1 py-8 px-4">
+                <div className="max-w-2xl mx-auto">
+                    {/* Back button */}
+                    <div className="h-4 w-24 bg-(--border-color) rounded mb-6" />
+
+                    {/* Card */}
+                    <div className="bg-(--bg-card) rounded-3xl border border-(--border-color) shadow-xl p-6 sm:p-8">
+                        {/* Header */}
+                        <div className="mb-6 space-y-2">
+                            <div className="h-7 w-48 bg-(--border-color) rounded" />
+                            <div className="h-4 w-40 bg-(--border-color) rounded" />
+                        </div>
+
+                        {/* Profile picture */}
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-24 h-24 rounded-full bg-(--border-color)" />
+                            <div className="h-9 w-32 bg-(--border-color) rounded-lg" />
+                        </div>
+
+                        {/* Inputs */}
+                        <div className="space-y-6">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="space-y-2">
+                                    <div className="h-4 w-24 bg-(--border-color) rounded" />
+                                    <div className="h-11 w-full bg-(--border-color) rounded-xl" />
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex gap-4 pt-6">
+                            <div className="h-12 flex-1 bg-(--border-color) rounded-xl" />
+                            <div className="h-12 w-28 bg-(--border-color) rounded-xl" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -22,6 +22,7 @@ export function useMessageQueue(socket: Socket | null, isConnected: boolean) {
     const [isFlushing, setIsFlushing] = useState(false);
 
     // Load queue from localStorage on mount
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         try {
             const stored = localStorage.getItem(QUEUE_STORAGE_KEY);

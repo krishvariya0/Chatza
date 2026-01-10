@@ -1,47 +1,22 @@
 "use client";
 
 import { useOnboardingStore } from "@/app/onboarding/store/onboardingStore";
+import { useUser } from "@/contexts/UserContext";
 import { showToast } from "@/lib/toast";
 import { Globe, MapPin, User } from "lucide-react";
 import NextImage from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-interface UserData {
-    fullName: string;
-    username: string;
-}
+import { useState } from "react";
 
 export default function PreviewPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [userData, setUserData] = useState<UserData | null>(null);
+
+    // Get user data from UserContext (already loaded, no API call needed)
+    const { user } = useUser();
 
     const { profilePicture, bio, location, website, reset } =
         useOnboardingStore();
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const res = await fetch("/api/onboarding");
-                const data = await res.json();
-
-                if (res.ok && data.user) {
-                    setUserData({
-                        fullName: data.user.fullName,
-                        username: data.user.username,
-                    });
-                } else if (res.status === 401) {
-                    showToast.error("Please login to continue");
-                    router.push("/auth/login");
-                }
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
-            }
-        };
-
-        fetchUserData();
-    }, [router]);
 
     const handleComplete = async () => {
         setLoading(true);
@@ -71,7 +46,10 @@ export default function PreviewPage() {
 
             showToast.success("Profile created successfully! 🎉");
             reset();
-            router.push(`/profile/${data.user.username}`);
+
+            // Immediately redirect to profile page (no delay for faster UX)
+            // Use window.location.replace to prevent back button issues
+            window.location.replace(`/profile/${data.user.username}`);
         } catch {
             showToast.error("Something went wrong");
         } finally {
@@ -123,13 +101,13 @@ export default function PreviewPage() {
                             )}
                         </div>
 
-                        {userData && (
+                        {user && (
                             <>
                                 <h2 className="text-xl font-bold text-(--text-primary) mb-1">
-                                    {userData.fullName}
+                                    {user.fullName}
                                 </h2>
                                 <p className="text-sm text-(--text-muted) mb-4">
-                                    @{userData.username}
+                                    @{user.username}
                                 </p>
                             </>
                         )}

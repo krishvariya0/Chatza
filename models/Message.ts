@@ -1,8 +1,14 @@
-import { Schema, model, models } from "mongoose";
+import { Model, Schema, model, models } from "mongoose";
+
+interface MessageModel extends Model<unknown> {
+    schema: Schema;
+}
 
 if (models.Message) {
-    if (!(models.Message as any).schema.path("delivered")) {
-        (models.Message as any).schema.add({
+    const MessageModel = models.Message as MessageModel;
+
+    if (!MessageModel.schema.path("delivered")) {
+        MessageModel.schema.add({
             delivered: {
                 type: Boolean,
                 default: false,
@@ -10,8 +16,8 @@ if (models.Message) {
         });
     }
 
-    if (!(models.Message as any).schema.path("deliveredAt")) {
-        (models.Message as any).schema.add({
+    if (!MessageModel.schema.path("deliveredAt")) {
+        MessageModel.schema.add({
             deliveredAt: {
                 type: Date,
                 default: null,
@@ -19,8 +25,8 @@ if (models.Message) {
         });
     }
 
-    if (!(models.Message as any).schema.path("replyTo")) {
-        (models.Message as any).schema.add({
+    if (!MessageModel.schema.path("replyTo")) {
+        MessageModel.schema.add({
             replyTo: {
                 type: {
                     messageId: { type: String },

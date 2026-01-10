@@ -11,6 +11,7 @@ export function useSocket(token: string | null) {
     >("disconnected");
     const [reconnectAttempts, setReconnectAttempts] = useState(0);
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         if (!token) {
             socketClient.disconnect();

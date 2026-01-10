@@ -57,15 +57,39 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     const logout = useCallback(async () => {
         try {
-            await fetch("/api/auth/logout", {
+            const res = await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });
+
+            if (!res.ok) {
+                throw new Error("Logout failed");
+            }
+
             setUser(null);
+
+            // Import dynamically to avoid SSR issues
+            const { showToast } = await import("@/lib/toast");
+            showToast.success("Logged out successfully!");
+
             // Full page reload to landing page
-            window.location.href = "/";
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 500);
         } catch (error) {
             console.error("Error logging out:", error);
+
+            // Still clear user data even if API fails
+            setUser(null);
+
+            // Import dynamically to avoid SSR issues
+            const { showToast } = await import("@/lib/toast");
+            showToast.error("Logout failed. Please try again.");
+
+            // Redirect anyway after a short delay
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 1000);
         }
     }, []);
 

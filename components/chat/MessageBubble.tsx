@@ -134,16 +134,30 @@ export default function MessageBubble({
     const handleTouchMove = (e: React.TouchEvent) => {
         if (touchStartRef.current !== null) {
             const diff = e.touches[0].clientX - touchStartRef.current;
-            if (diff > 0 && diff < 100) {
-                setSwipeOffset(diff);
-                if (longPressTimeoutRef.current) clearTimeout(longPressTimeoutRef.current);
+
+            // Right side messages (isOwn) should swipe LEFT (negative diff)
+            // Left side messages (!isOwn) should swipe RIGHT (positive diff)
+            if (isOwn) {
+                // Own messages: swipe left (negative values)
+                if (diff < 0 && diff > -100) {
+                    setSwipeOffset(diff);
+                    if (longPressTimeoutRef.current) clearTimeout(longPressTimeoutRef.current);
+                }
+            } else {
+                // Other's messages: swipe right (positive values)
+                if (diff > 0 && diff < 100) {
+                    setSwipeOffset(diff);
+                    if (longPressTimeoutRef.current) clearTimeout(longPressTimeoutRef.current);
+                }
             }
         }
     };
 
     const handleTouchEnd = () => {
         if (longPressTimeoutRef.current) clearTimeout(longPressTimeoutRef.current);
-        if (swipeOffset > 50) {
+
+        // Trigger reply if swipe distance is more than 50px (in either direction)
+        if (Math.abs(swipeOffset) > 50) {
             if (navigator.vibrate) navigator.vibrate(20);
             onReply(message);
         }
@@ -198,9 +212,10 @@ export default function MessageBubble({
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
             >
-                {swipeOffset > 0 && (
-                    <div className="absolute left-[-40px] top-1/2 -translate-y-1/2 text-gray-400">
-                        <FiCornerUpLeft className={`w-5 h-5 ${swipeOffset > 50 ? "scale-125 text-(--brand)" : ""}`} />
+                {swipeOffset !== 0 && (
+                    <div className={`absolute top-1/2 -translate-y-1/2 text-gray-400 ${isOwn ? 'right-[-40px]' : 'left-[-40px]'
+                        }`}>
+                        <FiCornerUpLeft className={`w-5 h-5 ${Math.abs(swipeOffset) > 50 ? "scale-125 text-(--brand)" : ""}`} />
                     </div>
                 )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatListSkeleton } from "@/components/skeletons";
+import { ChatListSkeleton } from "@/components/ui/Skeleton";
 import { useChat } from "@/contexts/ChatContext";
 import NextImage from "next/image";
 import { useCallback, useEffect, useState } from "react";

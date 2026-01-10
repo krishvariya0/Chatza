@@ -3,7 +3,7 @@
 import { FollowButton } from "@/components/FollowButton";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { MessageButton } from "@/components/MessageButton";
-import { ProfileSkeleton } from "@/components/skeleton/ProfileSkeleton";
+import { ProfileSkeleton } from "@/components/ui/Skeleton";
 import { useUser } from "@/contexts/UserContext";
 import { showToast } from "@/lib/toast";
 import {
@@ -70,16 +70,22 @@ export default function ProfilePage() {
             const res = await fetch('/api/auth/logout', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
             });
 
-            if (res.ok) {
-                showToast.success('Logged out successfully');
-                router.push('/auth/login');
-            } else {
-                showToast.error('Failed to logout');
+            if (!res.ok) {
+                throw new Error('Logout request failed');
             }
-        } catch {
-            showToast.error('Failed to logout');
+
+            showToast.success('Logged out successfully!');
+
+            // Small delay to show toast before redirect
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
+        } catch (error) {
+            console.error('Logout error:', error);
+            showToast.error('Failed to logout. Please try again.');
         } finally {
             setLoggingOut(false);
         }
@@ -89,10 +95,27 @@ export default function ProfilePage() {
         const fetchProfile = async () => {
             if (!currentUser) return;
 
-            // Always fetch full profile data from API
             try {
-                // Fetch profile first (critical data)
-                const userRes = await fetch(`/api/users/${username}`);
+                // Fetch ALL data in parallel for maximum speed
+                const isOwnProfile = username === currentUser.username;
+
+                const promises = [
+                    fetch(`/api/users/${username}`), // Profile data
+                ];
+
+                // Only fetch follow data if not own profile
+                if (!isOwnProfile) {
+                    promises.push(
+                        fetch(`/api/users/${username}/follow-status`),
+                        fetch(`/api/users/${username}/mutual-followers`)
+                    );
+                }
+
+                // Execute all fetches in parallel
+                const responses = await Promise.all(promises);
+                const [userRes, statusRes, mutualRes] = responses;
+
+                // Parse responses
                 const userData: { success: boolean; user: UserProfile; message?: string } = await userRes.json();
 
                 if (!userRes.ok) {
@@ -101,19 +124,17 @@ export default function ProfilePage() {
                     return;
                 }
 
+                // Set profile data immediately
                 setProfileUser(userData.user);
                 setFollowersCount(userData.user.followersCount || 0);
                 setFollowingCount(userData.user.followingCount || 0);
 
-                // Fetch secondary data in parallel if not own profile
-                if (userData.user.username !== currentUser?.username) {
-                    const [statusRes, mutualRes] = await Promise.all([
-                        fetch(`/api/users/${username}/follow-status`),
-                        fetch(`/api/users/${username}/mutual-followers`)
+                // Parse follow status and mutual followers (if fetched)
+                if (!isOwnProfile && statusRes && mutualRes) {
+                    const [statusData, mutualData] = await Promise.all([
+                        statusRes.json(),
+                        mutualRes.json()
                     ]);
-
-                    const statusData = await statusRes.json();
-                    const mutualData = await mutualRes.json();
 
                     if (statusRes.ok && statusData.success) {
                         setIsFollowing(statusData.isFollowing);
@@ -395,19 +416,14 @@ export default function ProfilePage() {
                                 </div>
 
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 px-4 sm:px-0">
-                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                                        <div
-                                            key={i}
-                                            className="aspect-square rounded-xl bg-(--border-color) hover:opacity-80 transition cursor-pointer overflow-hidden relative"
-                                        >
-                                            <NextImage
-                                                src={`https://picsum.photos/400/400?random=${i}`}
-                                                alt={`Post ${i}`}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        </div>
-                                    ))}
+                                    {/* <div className="col-span-2 sm:col-span-3 text-center py-12 text-(--text-muted)">
+                                        No posts yet
+                                    </div> */}
+                                    {/* Placeholder for now - will be replaced with actual posts */}
+                                    <div className="col-span-2 sm:col-span-3 text-center py-12 text-(--text-muted)">
+                                        <p className="text-lg font-semibold mb-2">Posts coming soon!</p>
+                                        <p className="text-sm">Your posts will appear here</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -2,17 +2,16 @@
 
 import { showToast } from '@/lib/toast';
 import { useEffect, useRef } from 'react';
-import { Id } from 'react-toastify';
 
 /**
  * Custom hook to manage toasts with automatic cleanup
  * Prevents stuck toasts by tracking and dismissing them on unmount
  */
 export function useToast() {
-    const toastIds = useRef<Set<Id>>(new Set());
+    const toastIds = useRef<Set<string>>(new Set());
 
     // Track toast IDs
-    const trackToast = (id: Id) => {
+    const trackToast = (id: string) => {
         toastIds.current.add(id);
     };
 
@@ -53,7 +52,13 @@ export function useToast() {
             trackToast(id);
             return id;
         },
-        dismiss: (id?: Id) => {
+        promise: <T,>(
+            promise: Promise<T>,
+            messages: { pending: string; success: string; error: string }
+        ) => {
+            return showToast.promise(promise, messages);
+        },
+        dismiss: (id?: string) => {
             if (id) {
                 toastIds.current.delete(id);
                 showToast.dismiss(id);

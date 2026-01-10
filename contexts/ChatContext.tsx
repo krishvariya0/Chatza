@@ -34,7 +34,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         if (!socket?.connected) return;
 
-        const handleUnreadCountUpdate = (data: any) => {
+        interface UnreadCountData {
+            countsPerChat?: Record<string, number>;
+            totalUnreadChats?: number;
+        }
+
+        const handleUnreadCountUpdate = (data: UnreadCountData) => {
             console.log('⚡ [UNREAD] Received count update:', data);
 
             setCountsPerChat(data.countsPerChat || {});

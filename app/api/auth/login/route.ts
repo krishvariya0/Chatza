@@ -11,7 +11,11 @@ export async function POST(req: Request) {
 
     if (!identifier || !password) {
       return NextResponse.json(
-        { success: false, message: "All fields are required" },
+        {
+          success: false,
+          message: "Email/username and password are required",
+          error: "VALIDATION_ERROR"
+        },
         { status: 400 }
       );
     }
@@ -24,7 +28,11 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "Invalid credentials" },
+        {
+          success: false,
+          message: "No account found with this email or username",
+          error: "INVALID_CREDENTIALS"
+        },
         { status: 401 }
       );
     }
@@ -33,7 +41,11 @@ export async function POST(req: Request) {
 
     if (!isMatch) {
       return NextResponse.json(
-        { success: false, message: "Invalid credentials" },
+        {
+          success: false,
+          message: "Incorrect password. Please try again.",
+          error: "INVALID_CREDENTIALS"
+        },
         { status: 401 }
       );
     }
@@ -41,9 +53,20 @@ export async function POST(req: Request) {
     // Create session
     const token = await createSession(user._id.toString());
 
-    // Set cookie
+    // Set cookies
     const cookieStore = await cookies();
+
+    // Session cookie
     cookieStore.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: "/",
+    });
+
+    // Onboarding status cookie (for middleware to read without DB query)
+    cookieStore.set("onboarding_completed", user.onboardingCompleted ? "true" : "false", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -68,8 +91,13 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("LOGIN ERROR:", error);
     return NextResponse.json(
-      { success: false, message: "Internal server error" },
+      {
+        success: false,
+        message: "Unable to process login. Please try again later.",
+        error: "SERVER_ERROR"
+      },
       { status: 500 }
     );
   }
 }
+

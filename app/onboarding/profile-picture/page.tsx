@@ -22,6 +22,62 @@ export default function ProfilePicturePage() {
         }
     }, [profilePicture]);
 
+    const compressImage = async (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // Set canvas size to 500x500 (server will crop to this anyway)
+                    const MAX_SIZE = 500;
+                    canvas.width = MAX_SIZE;
+                    canvas.height = MAX_SIZE;
+
+                    // Calculate dimensions to cover the square
+                    let srcX, srcY, srcWidth, srcHeight;
+                    const aspectRatio = img.width / img.height;
+
+                    if (aspectRatio > 1) {
+                        // Landscape
+                        srcHeight = img.height;
+                        srcWidth = img.height;
+                        srcX = (img.width - img.height) / 2;
+                        srcY = 0;
+                    } else {
+                        // Portrait or square
+                        srcWidth = img.width;
+                        srcHeight = img.width;
+                        srcX = 0;
+                        srcY = (img.height - img.width) / 2;
+                    }
+
+                    // Draw the image
+                    ctx?.drawImage(img, srcX, srcY, srcWidth, srcHeight, 0, 0, MAX_SIZE, MAX_SIZE);
+
+                    // Convert to blob with 0.8 quality
+                    canvas.toBlob(
+                        (blob) => {
+                            if (blob) {
+                                resolve(blob);
+                            } else {
+                                reject(new Error('Failed to compress image'));
+                            }
+                        },
+                        'image/jpeg',
+                        0.8 // 80% quality - good balance of quality and size
+                    );
+                };
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = e.target?.result as string;
+            };
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    };
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -36,6 +92,7 @@ export default function ProfilePicturePage() {
             return;
         }
 
+        // Show preview immediately for better UX
         const reader = new FileReader();
         reader.onloadend = () => {
             setPreview(reader.result as string);
@@ -44,8 +101,11 @@ export default function ProfilePicturePage() {
 
         setUploading(true);
         try {
+            // Compress image on client-side BEFORE upload
+            const compressedBlob = await compressImage(file);
+
             const formData = new FormData();
-            formData.append("file", file);
+            formData.append("file", compressedBlob, "profile.jpg");
 
             const res = await fetch("/api/upload", {
                 method: "POST",
@@ -62,7 +122,8 @@ export default function ProfilePicturePage() {
 
             setProfilePicture(data.url);
             showToast.success("Profile picture uploaded!");
-        } catch {
+        } catch (error) {
+            console.error('Upload error:', error);
             showToast.error("Failed to upload image");
             setPreview(null);
         } finally {

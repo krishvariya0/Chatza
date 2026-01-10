@@ -1,7 +1,7 @@
 "use client";
 
 import { Sidebar } from "@/components/layout/Sidebar";
-import { EditProfileSkeleton } from "@/components/skeleton/EditProfileSkeleton";
+import { EditProfileSkeleton } from "@/components/ui/Skeleton";
 import { showToast } from "@/lib/toast";
 import { ArrowLeft, Globe, MapPin, User } from "lucide-react";
 import NextImage from "next/image";

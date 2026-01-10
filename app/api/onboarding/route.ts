@@ -74,6 +74,17 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
+        // Update onboarding_completed cookie
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        cookieStore.set("onboarding_completed", "true", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 30 * 24 * 60 * 60, // 30 days
+            path: "/",
+        });
+
         return NextResponse.json({
             success: true,
             message: "Profile updated successfully",

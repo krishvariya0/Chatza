@@ -1,7 +1,7 @@
 "use client";
 
 import MessageBubble from "@/components/chat/MessageBubble";
-import { ChatMessagesSkeleton } from "@/components/skeletons";
+import { ChatMessagesSkeleton } from "@/components/ui/Skeleton";
 import { useChat } from "@/hooks/useChat";
 import { useTypingIndicator } from "@/hooks/useTypingIndicator";
 import { useRouter } from "next/navigation";

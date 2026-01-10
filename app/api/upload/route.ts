@@ -28,9 +28,9 @@ export async function POST(req: NextRequest) {
                     {
                         folder: "chatza-profiles",
                         resource_type: "image",
+                        // Image is already 500x500 compressed from client, just upload as-is
                         transformation: [
-                            { width: 500, height: 500, crop: "fill", gravity: "face" },
-                            { quality: "auto" },
+                            { quality: "auto:good" }, // Minimal processing for speed
                         ],
                     },
                     (error, result) => {

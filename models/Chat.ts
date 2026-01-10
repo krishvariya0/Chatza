@@ -21,7 +21,7 @@ const ChatSchema = new Schema(
     { timestamps: true }
 );
 
-ChatSchema.path("participants").validate(function (value: any[]) {
+ChatSchema.path("participants").validate(function (value: Schema.Types.ObjectId[]) {
     return value.length === 2;
 }, "Chat must have exactly 2 participants");
 

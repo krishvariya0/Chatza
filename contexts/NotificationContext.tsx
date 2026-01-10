@@ -81,7 +81,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             clearTimeout(initTimer);
             clearInterval(interval);
         };
-    }, []);
+    }, [refreshUnreadCount]);
 
     return (
         <NotificationContext.Provider value={{ unreadCount, refreshUnreadCount, markAllAsRead }}>

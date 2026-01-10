@@ -105,124 +105,8 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
         }
     }, [currentUserIdProp]);
 
-    // Initialize chat when recipientId or socket changes
-    useEffect(() => {
-        if (!recipientId) {
-            setLoading(false);
-            setMessages([]);
-            setChatId(null);
-            initialized.current = false;
-            currentRecipientRef.current = null;
-            return;
-        }
-
-        // Reset if recipient changed
-        if (currentRecipientRef.current !== recipientId) {
-            logger.log("🔄 [CHAT] Recipient changed, resetting chat state");
-            setMessages([]);
-            setChatId(null);
-            initialized.current = false;
-            currentRecipientRef.current = recipientId;
-        }
-
-        let quickFallbackTimeout: NodeJS.Timeout | undefined;
-
-        if (socket?.connected) {
-            // Socket is ready - initialize IMMEDIATELY (no delay)
-            if (!initialized.current && currentRecipientRef.current === recipientId) {
-                initialized.current = true;
-                logger.log("⚡ [CHAT] Socket ready - initializing instantly!");
-                initializeChat();
-            }
-        } else {
-            // Socket not connected - wait minimal time then use REST
-            quickFallbackTimeout = setTimeout(() => {
-                if (!initialized.current && currentRecipientRef.current === recipientId) {
-                    initialized.current = true;
-                    logger.log("⚡ [CHAT] Using REST API (socket not ready)");
-                    initializeChat();
-                }
-            }, 100); // Only 100ms wait before REST fallback
-        }
-
-        return () => {
-            if (quickFallbackTimeout) {
-                clearTimeout(quickFallbackTimeout);
-            }
-            // Only reset if recipient actually changed
-            if (currentRecipientRef.current !== recipientId) {
-                initialized.current = false;
-            }
-        };
-    }, [recipientId, socket?.connected]);
-
-    const initializeChat = async () => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            logger.log("🔵 [CHAT] Initializing chat with recipient:", recipientId);
-            logger.log("🔵 [CHAT] Socket connected?", socket?.connected);
-
-            if (!socket || !socket.connected) {
-                logger.warn("⚠️ [CHAT] Socket not connected, falling back to REST API");
-                // Fallback to REST API if socket not available
-                await initializeChatViaREST();
-                return;
-            }
-
-            // Set timeout to prevent infinite loading (very aggressive)
-            const timeoutId = setTimeout(() => {
-                logger.warn("⏱️ [CHAT] Socket join_chat timeout, falling back to REST API");
-                initializeChatViaREST();
-            }, 1500); // 1.5 second timeout for instant fallback
-
-            // Step 1: Join chat room via socket
-            logger.log("🔵 [CHAT] Emitting join_chat event...");
-            socket.emit("join_chat", { recipientId }, (response: JoinChatResponse) => {
-                clearTimeout(timeoutId); // Clear timeout on response
-
-                logger.log("🔵 [CHAT] join_chat response:", response);
-
-                if (!response || !response.success) {
-                    logger.warn("⚠️ [CHAT] Failed to join chat via socket:", response?.error);
-                    // Fallback to REST API
-                    initializeChatViaREST();
-                    return;
-                }
-
-                const { chatId: socketChatId, roomId, messages: socketMessages } = response;
-                logger.log("✅ [CHAT] Joined room:", roomId);
-                logger.log("✅ [CHAT] Chat ID:", socketChatId);
-                logger.log("✅ [CHAT] Loaded messages:", socketMessages?.length || 0);
-
-                setChatId(socketChatId || null);
-                if (socketMessages && Array.isArray(socketMessages)) {
-                    setMessages(socketMessages);
-                }
-                setLoading(false);
-            });
-        } catch (err) {
-            logger.error("❌ [CHAT] Failed to initialize chat:", err);
-            // Fallback to REST API
-            await initializeChatViaREST();
-        }
-    };
-
-    // Cleanup active chat on unmount or change
-    useEffect(() => {
-        const currentChatId = chatId;
-
-        return () => {
-            if (currentChatId && socket?.connected) {
-                logger.log("👋 [CHAT] Leaving chat (cleanup):", currentChatId);
-                socket.emit("leave_chat", { chatId: currentChatId });
-            }
-        };
-    }, [chatId, socket]);
-
     // Fallback REST API initialization (OPTIMIZED)
-    const initializeChatViaREST = async () => {
+    const initializeChatViaREST = useCallback(async () => {
         try {
             logger.log("🔄 [CHAT] Initializing via REST API fallback...");
 
@@ -280,7 +164,123 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
             setLoading(false);
             initialized.current = false; // Reset to allow retry
         }
-    };
+    }, [recipientId, socket]);
+
+    const initializeChat = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            logger.log("🔵 [CHAT] Initializing chat with recipient:", recipientId);
+            logger.log("🔵 [CHAT] Socket connected?", socket?.connected);
+
+            if (!socket || !socket.connected) {
+                logger.warn("⚠️ [CHAT] Socket not connected, falling back to REST API");
+                // Fallback to REST API if socket not available
+                await initializeChatViaREST();
+                return;
+            }
+
+            // Set timeout to prevent infinite loading (very aggressive)
+            const timeoutId = setTimeout(() => {
+                logger.warn("⏱️ [CHAT] Socket join_chat timeout, falling back to REST API");
+                initializeChatViaREST();
+            }, 1500); // 1.5 second timeout for instant fallback
+
+            // Step 1: Join chat room via socket
+            logger.log("🔵 [CHAT] Emitting join_chat event...");
+            socket.emit("join_chat", { recipientId }, (response: JoinChatResponse) => {
+                clearTimeout(timeoutId); // Clear timeout on response
+
+                logger.log("🔵 [CHAT] join_chat response:", response);
+
+                if (!response || !response.success) {
+                    logger.warn("⚠️ [CHAT] Failed to join chat via socket:", response?.error);
+                    // Fallback to REST API
+                    initializeChatViaREST();
+                    return;
+                }
+
+                const { chatId: socketChatId, roomId, messages: socketMessages } = response;
+                logger.log("✅ [CHAT] Joined room:", roomId);
+                logger.log("✅ [CHAT] Chat ID:", socketChatId);
+                logger.log("✅ [CHAT] Loaded messages:", socketMessages?.length || 0);
+
+                setChatId(socketChatId || null);
+                if (socketMessages && Array.isArray(socketMessages)) {
+                    setMessages(socketMessages);
+                }
+                setLoading(false);
+            });
+        } catch (err) {
+            logger.error("❌ [CHAT] Failed to initialize chat:", err);
+            // Fallback to REST API
+            await initializeChatViaREST();
+        }
+    }, [recipientId, socket, initializeChatViaREST]);
+
+    // Initialize chat when recipientId or socket changes
+    useEffect(() => {
+        if (!recipientId) {
+            setLoading(false);
+            setMessages([]);
+            setChatId(null);
+            initialized.current = false;
+            currentRecipientRef.current = null;
+            return;
+        }
+
+        // Reset if recipient changed
+        if (currentRecipientRef.current !== recipientId) {
+            logger.log("🔄 [CHAT] Recipient changed, resetting chat state");
+            setMessages([]);
+            setChatId(null);
+            initialized.current = false;
+            currentRecipientRef.current = recipientId;
+        }
+
+        let quickFallbackTimeout: NodeJS.Timeout | undefined;
+
+        if (socket?.connected) {
+            // Socket is ready - initialize IMMEDIATELY (no delay)
+            if (!initialized.current && currentRecipientRef.current === recipientId) {
+                initialized.current = true;
+                logger.log("⚡ [CHAT] Socket ready - initializing instantly!");
+                initializeChat();
+            }
+        } else {
+            // Socket not connected - wait minimal time then use REST
+            quickFallbackTimeout = setTimeout(() => {
+                if (!initialized.current && currentRecipientRef.current === recipientId) {
+                    initialized.current = true;
+                    logger.log("⚡ [CHAT] Using REST API (socket not ready)");
+                    initializeChat();
+                }
+            }, 100); // Only 100ms wait before REST fallback
+        }
+
+        return () => {
+            if (quickFallbackTimeout) {
+                clearTimeout(quickFallbackTimeout);
+            }
+            // Only reset if recipient actually changed
+            if (currentRecipientRef.current !== recipientId) {
+                initialized.current = false;
+            }
+        };
+    }, [recipientId, socket?.connected, initializeChat]);
+
+    // Cleanup active chat on unmount or change
+    useEffect(() => {
+        const currentChatId = chatId;
+
+        return () => {
+            if (currentChatId && socket?.connected) {
+                logger.log("👋 [CHAT] Leaving chat (cleanup):", currentChatId);
+                socket.emit("leave_chat", { chatId: currentChatId });
+            }
+        };
+    }, [chatId, socket]);
 
     // Send message via REST API (fallback)
     const sendMessageViaREST = async (text: string, tempId: string, replyTo?: Message["replyTo"], callback?: (success: boolean) => void) => {
@@ -590,7 +590,6 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
         logger.log("🔄 [POLL] Starting polling for new messages (socket not connected)");
 
         let pollInterval: ReturnType<typeof setInterval> | null = null;
-        let isTabVisible = !document.hidden;
 
         const startPolling = () => {
             if (pollInterval) return; // Already polling
@@ -636,8 +635,6 @@ export function useChat({ socket, recipientId, currentUserId: currentUserIdProp 
 
         // Handle visibility change
         const handleVisibilityChange = () => {
-            isTabVisible = !document.hidden;
-
             if (document.hidden) {
                 logger.log("👁️ [POLL] Tab hidden, pausing polling");
                 stopPolling();

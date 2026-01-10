@@ -81,7 +81,7 @@ function AppLayoutContent({ children }: AppLayoutProps) {
                 notificationCount={unreadCount}
                 chatUnreadCount={chatUnreadCount}
             />
-            <main className="flex-1 overflow-y-auto pb-20 lg:pb-0">{children}</main>
+            <main className="flex-1 overflow-y-auto overflow-x-hidden pb-20 lg:pb-0">{children}</main>
         </div>
     );
 }

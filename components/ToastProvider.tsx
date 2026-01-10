@@ -1,45 +1,63 @@
 'use client';
 
-import { useEffect } from 'react';
-import { Bounce, ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { Toaster } from 'react-hot-toast';
 
 export function ToastProvider() {
-    // Clear any stuck toasts on mount
-    useEffect(() => {
-        toast.dismiss();
-
-        // Clear stuck toasts on visibility change (when user returns to tab)
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                // Clear any toasts that might be stuck
-                const stuckToasts = document.querySelectorAll('.Toastify__toast');
-                if (stuckToasts.length > 5) {
-                    toast.dismiss();
-                }
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, []);
-
     return (
-        <ToastContainer
+        <Toaster
             position="bottom-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={true}
-            closeOnClick={true}
-            rtl={false}
-            pauseOnFocusLoss={false}
-            draggable={true}
-            pauseOnHover={true}
-            limit={3}
-            transition={Bounce}
+            reverseOrder={false}
+            gutter={8}
+            toastOptions={{
+                // Default options
+                duration: 3000,
+                style: {
+                    background: '#363636',
+                    color: '#fff',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    maxWidth: '500px',
+                },
+
+                // Success toast styling
+                success: {
+                    duration: 3000,
+                    iconTheme: {
+                        primary: '#10b981',
+                        secondary: '#fff',
+                    },
+                    style: {
+                        background: '#dcfce7',
+                        color: '#166534',
+                        border: '1px solid #bbf7d0',
+                    },
+                },
+
+                // Error toast styling
+                error: {
+                    duration: 4000,
+                    iconTheme: {
+                        primary: '#ef4444',
+                        secondary: '#fff',
+                    },
+                    style: {
+                        background: '#fee2e2',
+                        color: '#991b1b',
+                        border: '1px solid #fecaca',
+                    },
+                },
+
+                // Loading toast styling
+                loading: {
+                    style: {
+                        background: '#f3f4f6',
+                        color: '#374151',
+                        border: '1px solid #e5e7eb',
+                    },
+                },
+            }}
         />
     );
 }
+

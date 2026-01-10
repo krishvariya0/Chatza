@@ -1,3 +1,4 @@
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ToastProvider } from "@/components/ToastProvider";
 import { UserProvider } from "@/contexts/UserContext";
@@ -214,9 +215,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased transition-colors duration-300`}
       >
-        <ThemeProvider>
-          <UserProvider>{children}</UserProvider>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <UserProvider>{children}</UserProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
 
         {/* Toast Provider with auto-cleanup */}
         <ToastProvider />

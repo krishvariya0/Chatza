@@ -27,6 +27,16 @@ export async function POST() {
             maxAge: 0
         });
 
+        // Clear onboarding_completed cookie
+        response.cookies.set("onboarding_completed", "", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            expires: new Date(0),
+            maxAge: 0
+        });
+
         return response;
     } catch (error) {
         console.error("Logout error:", error);

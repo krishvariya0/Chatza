@@ -44,9 +44,20 @@ export async function POST(req: NextRequest) {
     // Create session
     const token = await createSession(newUser._id.toString());
 
-    // Set cookie
+    // Set cookies
     const cookieStore = await cookies();
+
+    // Session cookie
     cookieStore.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      path: "/",
+    });
+
+    // Onboarding status cookie (for middleware to read without DB query)
+    cookieStore.set("onboarding_completed", newUser.onboardingCompleted ? "true" : "false", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
